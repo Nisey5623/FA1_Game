@@ -21,8 +21,15 @@ class Game:
 
     def new(self): #Start new game
         self.all_sprites = pygame.sprite.Group()
-        self.player = Mage()
+        self.platforms = pygame.sprite.Group()
+        self.player = Mage(self)
         self.all_sprites.add(self.player)
+        plat1 = platform(0,Height - 40,Width,40)
+        self.all_sprites.add(plat1)
+        self.platforms.add(plat1)
+        plat2 = platform(Width / 2-50,Height*3/4,100,20)
+        self.all_sprites.add(plat2)
+        self.platforms.add(plat2)
         self.run()
 
     def run(self): #Game Loop
@@ -35,6 +42,11 @@ class Game:
     
     def update(self): #Game Loop - Update
         self.all_sprites.update()
+        if self.player.vel.y > 0:
+            hits = pygame.sprite.spritecollide(self.player,self.platforms,False)
+            if hits:
+                self.player.pos.y = hits[0].rect.top
+                self.player.vel.y = 0
     
     def events(self): #Game Loop - Events
         for event in pygame.event.get():
@@ -42,6 +54,9 @@ class Game:
             if event.type == pygame.QUIT:
                 self.playing = False
             self.running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    self.player.jump()
 
     def draw(self): #Game Loop - Draw
         #Fills the screen with the color black    

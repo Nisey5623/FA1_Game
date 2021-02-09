@@ -10,4 +10,4 @@ Red = (255,0,0)
 Green = (0,255,0)
 Blue = (0,0,255)
 PLAYER_ACC = 2
-PLAYER_FRICTION = -0.20
+PLAYER_FRICTION = -0.18
