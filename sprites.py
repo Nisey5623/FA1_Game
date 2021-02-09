@@ -16,11 +16,11 @@ class Mage(pygame.sprite.Sprite):
         self.acc = vec(0,0)    
 
     def update(self):
-        self.acc = vec(0,0.5)
+        self.acc = vec(0,0)
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_LEFT]:
+        if keys[pygame.K_a]:
             self.acc.x = -PLAYER_ACC
-        if keys[pygame.K_RIGHT]:
+        if keys[pygame.K_d]:
             self.acc.x = PLAYER_ACC
          
         self.acc += self.vel * PLAYER_FRICTION
