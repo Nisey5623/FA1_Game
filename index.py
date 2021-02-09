@@ -24,12 +24,10 @@ class Game:
         self.platforms = pygame.sprite.Group()
         self.player = Mage(self)
         self.all_sprites.add(self.player)
-        plat1 = platform(0,Height - 40,Width,40)
-        self.all_sprites.add(plat1)
-        self.platforms.add(plat1)
-        plat2 = platform(Width / 2-50,Height*3/4,100,20)
-        self.all_sprites.add(plat2)
-        self.platforms.add(plat2)
+        for plat in Platform_list:
+            p = platform(*plat)
+            self.all_sprites.add(p)
+            self.platforms.add(p)
         self.run()
 
     def run(self): #Game Loop
