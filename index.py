@@ -19,6 +19,7 @@ class Game:
         #Variable stating that running is true for game loop below
         self.running = True
         
+        
 
     def new(self): #Start new game
         #Creates a sprite group for all sprites and all platforms

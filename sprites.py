@@ -21,7 +21,7 @@ class Mage(pygame.sprite.Sprite):
         hits = pygame.sprite.spritecollide(self,self.game.platforms,False)
         self.rect.x -= 1
         if hits:
-            self.vel.y = -10
+            self.vel.y = -13
 
 
     def update(self):
