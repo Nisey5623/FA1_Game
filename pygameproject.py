@@ -14,6 +14,9 @@ pygame.display.set_caption('My Space Game')
 screen = pygame.display.get_surface() # Surface object
 screen.fill((124, 255, 0)) #(255,255,255)  R,G,B
 
+#create an image object
+#background = pygame.image.load("background.jpg") 
+#screen.blit(background, (0,0)) #blit command can be used to show any image.
 
 #create a font
 myfont = pygame.font.SysFont('ArialBold', 30)
@@ -22,6 +25,8 @@ myfont = pygame.font.SysFont('ArialBold', 30)
 #challenge: Draw three shapes or lines - look up pygame.draw
 
 #play music
+#pygame.mixer.music.load('backgroundmusic.mp3')
+#pygame.mixer.music.play()
 
 
 clock = pygame.time.Clock()
@@ -69,6 +74,7 @@ while not Exit: #game loop
         r.update()
     
     #Drawing
+    #screen.blit(background, (0,0))
     screen.blit(label,(50,50))
 
     for r in rectanglelist:

@@ -7,9 +7,10 @@ vec = pygame.math.Vector2
 class Mage(pygame.sprite.Sprite):
     def __init__(self,game):
         pygame.sprite.Sprite.__init__(self)
-        self.game = game
         self.image = pygame.Surface((30,40))
-        self.image.fill(Green)
+        self.image = pygame.image.load("Mage/Idle/idle1.png")
+        self.image.convert_alpha()
+        self.game = game
         self.rect = self.image.get_rect()
         self.rect.center = (Width / 2, Height / 2)
         self.pos = vec(Width / 2, Height / 2)
@@ -22,7 +23,6 @@ class Mage(pygame.sprite.Sprite):
         self.rect.x -= 1
         if hits:
             self.vel.y = -13
-
 
     def update(self):
         self.acc = vec(0,0.5)
