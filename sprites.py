@@ -8,7 +8,7 @@ class Mage(pygame.sprite.Sprite):
     def __init__(self,game):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((30,40))
-        self.image = pygame.image.load("Mage/Idle/idle1.png")
+        self.image = pygame.image.load("Mage/mage.png")
         self.image.convert_alpha()
         self.game = game
         self.rect = self.image.get_rect()
@@ -47,7 +47,7 @@ class platform(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((w,h))
-        self.image.fill(Blue)
+        self.image.fill(Green)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y

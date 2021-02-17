@@ -2,6 +2,8 @@ import pygame
 from pygame.locals import *
 import os, sys
 import random
+from myrectangleclass import myrectangle
+from Player import *
 
 pygame.init()
 pygame.mixer.init()
@@ -15,8 +17,8 @@ screen = pygame.display.get_surface() # Surface object
 screen.fill((124, 255, 0)) #(255,255,255)  R,G,B
 
 #create an image object
-#background = pygame.image.load("background.jpg") 
-#screen.blit(background, (0,0)) #blit command can be used to show any image.
+background = pygame.image.load("background.jpg") 
+screen.blit(background, (0,0)) #blit command can be used to show any image.
 
 #create a font
 myfont = pygame.font.SysFont('ArialBold', 30)
@@ -34,25 +36,10 @@ Exit = False
 x = 0
 y = 200
 
-#create a blueprint for an object
-# An object is a very advanced variable 
-class myrectangle():
-    def __init__(self, x, y):
-        self.x = x; self.y = y
-        self.colour = (0,100,255)
-        self.width = 50; self.height = 50
-        self.hspeed = random.randint(-10,10); self.vspeed = random.randint(-10,10)
-    def draw(self,screen):
-        pygame.draw.rect(screen,self.colour,(self.x,self.y,self.width,self.height))
-        return
-    def update(self):
-        self.x = self.x + self.hspeed
-        self.y = self.y + self.vspeed
-        return
-
 rectanglelist = []
+hero = Player(200,200)
  
-pygame.time.set_timer(USEREVENT + 1, 500)
+pygame.time.set_timer(USEREVENT + 1, 300)
 while not Exit: #game loop
 
     clock.tick(60) #framerate
@@ -61,9 +48,13 @@ while not Exit: #game loop
         if event.type == QUIT:
             Exit = True
         elif event.type == USEREVENT + 1:
-            newrectangle = myrectangle(512,300)
+            newrectangle = myrectangle(random.randint(0,1024),random.randint(0,600))
             rectanglelist.append(newrectangle)
-            pygame.time.set_timer(USEREVENT + 1, 500)
+            pygame.time.set_timer(USEREVENT + 1, 300)
+
+    pressed = pygame.key.get_pressed()
+    mouse_x, mouse_y = pygame.mouse.get_pos()
+
 
     #Logic
     timer = int(pygame.time.get_ticks()/1000)
@@ -72,13 +63,15 @@ while not Exit: #game loop
 
     for r in rectanglelist:
         r.update()
-    
+    hero.update(pressed)
     #Drawing
-    #screen.blit(background, (0,0))
+    screen.blit(background, (0,0))
     screen.blit(label,(50,50))
 
     for r in rectanglelist:
         r.draw(screen)
+        
+    hero.draw(screen)
 
     #flip
     pygame.display.flip()

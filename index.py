@@ -37,7 +37,7 @@ class Game:
         self.run()
 
     def run(self): #Game Loop
-        #Sets the playing variable to while true game updates, checks events and draws
+        #Sets the playing variable to while true game updates, checks events and draws while playing is true
         self.playing = True
         while self.playing:
             self.Clock.tick(FPS)
@@ -68,8 +68,8 @@ class Game:
     def draw(self): #Game Loop - Draw  
         #background = pygame.image.load("85850.jpg") 
         #self.screen.blit(background, (0,0)) 
-        #Sets a white screen
-        self.screen.fill(White)
+        #Sets a blue screen
+        self.screen.fill(Blue)
         #Draws the all_sprites group
         self.all_sprites.draw(self.screen)
         #The display flip is always last in the game loop.
