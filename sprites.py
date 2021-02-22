@@ -7,25 +7,44 @@ vec = pygame.math.Vector2
 class Mage(pygame.sprite.Sprite):
     def __init__(self,game):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.Surface((30,40))
-        self.image = pygame.image.load("Mage/mage.png")
-        self.image.convert_alpha()
         self.game = game
+        self.walking = False
+        self.jumping = False
+        self.current_frame = 0
+        self.last_update = 0
+        self.load_images()
+        self.image = self.standing_frames[0]
+        self.image.convert_alpha()
         self.rect = self.image.get_rect()
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect.center = (Width / 2, Height / 2)
         self.pos = vec(Width / 2, Height / 2)
         self.vel = vec(0,0)
         self.acc = vec(0,0)    
+
+    def load_images(self):
+        self.standing_frames = [pygame.image.load("Mage/Idle/idle2.png"), pygame.image.load("Mage/Idle/idle3.png")]
+        for frame in self.standing_frames:
+            frame.set_colorkey(Black)
+        self.walk_frames_r = [pygame.image.load("Mage/Walk/walk1.png"), pygame.image.load("Mage/Walk/walk2.png")]
+        self.walk_frames_l = []
+        for frame in self.walk_frames_r:
+            frame.set_colorkey(Black)
+            self.walk_frames_l.append(pygame.transform.flip(frame, True, False))
+        self.jump_frame = [pygame.image.load("Mage/Jump/jump1.png"), pygame.image.load("Mage/Jump/jump2.png")]
+        
+
 
     def jump(self):
         self.rect.x += 1
         hits = pygame.sprite.spritecollide(self,self.game.platforms,False)
         self.rect.x -= 1
         if hits:
-            self.vel.y = -13
+            self.vel.y = -20
 
     def update(self):
-        self.acc = vec(0,0.5)
+        self.animate()
+        self.acc = vec(0,0.8)
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             self.acc.x = -PLAYER_ACC
@@ -42,6 +61,18 @@ class Mage(pygame.sprite.Sprite):
             self.pos.x = Width
 
         self.rect.midbottom = self.pos
+
+    def animate(self):
+        now = pygame.time.get_ticks()
+        if not self.jumping and not self.walking:
+            if now - self.last_update > 350:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.standing_frames)
+                bottom = self.rect.bottom
+                self.image = self.standing_frames[self.current_frame]
+                self.rect = self.image.get_rect()
+                self.rect.bottom = bottom
+
 
 class platform(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h):

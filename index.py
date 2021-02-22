@@ -50,10 +50,19 @@ class Game:
         self.all_sprites.update()
         #Checks for collision between player and platform
         if self.player.vel.y > 0:
-            hits = pygame.sprite.spritecollide(self.player,self.platforms,False)
+            hits = pygame.sprite.spritecollide(self.player,self.platforms,False, pygame.sprite.collide_mask)
             if hits:
-                self.player.pos.y = hits[0].rect.top
+                self.player.pos.y = hits[0].rect.bottom
                 self.player.vel.y = 0
+        #Check for scrolling
+        if self.player.rect.right >= Width / 2:
+            self.player.pos.x -= abs(self.player.vel.x) 
+            for plat in self.platforms:
+                plat.rect.x -= abs(self.player.vel.x)        
+        if self.player.rect.right <= Width / 2:
+            self.player.pos.x += abs(self.player.vel.x) 
+            for plat in self.platforms:
+                plat.rect.x += abs(self.player.vel.x)    
     
     def events(self): #Game Loop - Events
         for event in pygame.event.get():
@@ -66,10 +75,10 @@ class Game:
                     self.player.jump()
 
     def draw(self): #Game Loop - Draw  
-        #background = pygame.image.load("85850.jpg") 
-        #self.screen.blit(background, (0,0)) 
+        background = pygame.image.load("Temple Background.jpg") 
+        self.screen.blit(background, (0,0)) 
         #Sets a blue screen
-        self.screen.fill(Blue)
+        #self.screen.fill(Blue)
         #Draws the all_sprites group
         self.all_sprites.draw(self.screen)
         #The display flip is always last in the game loop.
