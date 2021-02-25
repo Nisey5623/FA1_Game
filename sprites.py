@@ -72,7 +72,7 @@ class Mage(pygame.sprite.Sprite):
                 self.image = self.standing_frames[self.current_frame]
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
-
+                #Fake Comment
 
 class platform(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h):
