@@ -23,7 +23,7 @@ class Game:
 
     def new(self): #Start new game
         #Creates a sprite group for all sprites and all platforms
-        self.all_sprites = pygame.sprite.Group()
+        self.all_sprites = pygame.sprite.LayeredUpdates()
         self.platforms = pygame.sprite.Group()
         #Places the player in the centre of the screen and adds player to all_sprites group
         self.player = Mage(self)
@@ -50,9 +50,9 @@ class Game:
         self.all_sprites.update()
         #Checks for collision between player and platform
         if self.player.vel.y > 0:
-            hits = pygame.sprite.spritecollide(self.player,self.platforms,False, pygame.sprite.collide_mask)
+            hits = pygame.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
-                self.player.pos.y = hits[0].rect.bottom
+                self.player.pos.y = hits[0].rect.top
                 self.player.vel.y = 0
         #Check for scrolling
         if self.player.rect.right >= Width / 2:
