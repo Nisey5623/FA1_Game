@@ -27,6 +27,9 @@ class Game:
         self.platforms = pygame.sprite.Group()
         #Places the player in the centre of the screen and adds player to all_sprites group
         self.player = Mage(self)
+        eloc = []
+        eloc = [700,600]
+        self.enemy_list = Difficulty.easy(1,eloc)
         self.all_sprites.add(self.player)
         #Adds the platforms from the platform list to the location while adding them to the two sprite groups
         for plat in Platform_list:
@@ -54,6 +57,11 @@ class Game:
             if hits:
                 self.player.pos.y = hits[0].rect.top
                 self.player.vel.y = 0
+                self.player.jumping = False
+        hit_list = pygame.sprite.spritecollide(self.player, self.enemy_list, False)
+        for enemy in hit_list:
+            self.player.health -= 1
+            print(self.player.health)
         #Check for scrolling
         if self.player.rect.right >= Width / 2:
             self.player.pos.x -= abs(self.player.vel.x) 
@@ -76,10 +84,13 @@ class Game:
 
     def draw(self): #Game Loop - Draw  
         background = pygame.image.load("Temple Background.jpg") 
-        self.screen.blit(background, (0,0)) 
+        self.screen.blit(background, (0,0))
         #Sets a blue screen
         #self.screen.fill(Blue)
         #Draws the all_sprites group
+        self.enemy_list.draw(self.screen)
+        for e in self.enemy_list:
+            e.move()
         self.all_sprites.draw(self.screen)
         #The display flip is always last in the game loop.
         pygame.display.flip()

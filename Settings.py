@@ -9,6 +9,7 @@ Black = (0,0,0)
 Red = (255,0,0)
 Green = (0,255,0)
 Blue = (0,0,255)
+ALPHA = (0,255,0)
 
 Platform_list = [(0,Height - 40,5000,40),(Width / 2-50,520,100,20)]
 

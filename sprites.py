@@ -7,6 +7,7 @@ vec = pygame.math.Vector2
 class Mage(pygame.sprite.Sprite):
     def __init__(self,game):
         pygame.sprite.Sprite.__init__(self)
+        self.health = 5
         self.game = game
         self.walking = False
         self.jumping = True
@@ -21,7 +22,7 @@ class Mage(pygame.sprite.Sprite):
         self.acc = vec(0,0)    
 
     def load_images(self):
-        self.standing_frames = [pygame.image.load("Mage/Idle/idle2.png"), pygame.image.load("Mage/Idle/idle3.png")]
+        self.standing_frames = [pygame.image.load("Mage/Idle_Edit/idle2.png"), pygame.image.load("Mage/Idle_Edit/idle3.png"), pygame.image.load("Mage/Idle_Edit/idle4.png"), pygame.image.load("Mage/Idle_Edit/idle5.png"), pygame.image.load("Mage/Idle_Edit/idle6.png"), pygame.image.load("Mage/Idle_Edit/idle7.png"), pygame.image.load("Mage/Idle_Edit/idle8.png"), pygame.image.load("Mage/Idle_Edit/idle9.png"), pygame.image.load("Mage/Idle_Edit/idle10.png"), pygame.image.load("Mage/Idle_Edit/idle11.png"), pygame.image.load("Mage/Idle_Edit/idle12.png"), pygame.image.load("Mage/Idle_Edit/idle13.png"), pygame.image.load("Mage/Idle_Edit/idle14.png")]
         for frame in self.standing_frames:
             frame.set_colorkey(Black)
         self.walk_frames_r = [pygame.image.load("Mage/Walk_Edit/walk1.png"), pygame.image.load("Mage/Walk_Edit/walk2.png"), pygame.image.load("Mage/Walk_Edit/walk3.png"), pygame.image.load("Mage/Walk_Edit/walk4.png"), pygame.image.load("Mage/Walk_Edit/walk5.png"), pygame.image.load("Mage/Walk_Edit/walk6.png")]
@@ -48,7 +49,7 @@ class Mage(pygame.sprite.Sprite):
             self.acc.x = -PLAYER_ACC
         if keys[pygame.K_d]:
             self.acc.x = PLAYER_ACC
-         
+        
         self.acc.x += self.vel.x * PLAYER_FRICTION
         self.vel += self.acc
         if abs(self.vel.x) < 0.1:
@@ -98,3 +99,44 @@ class platform(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+
+class Orc(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.load_images()
+        self.image = self.idling_frames[0]
+        self.image.convert_alpha()
+        self.image.set_colorkey(ALPHA)
+        self.image = pygame.transform.rotozoom(self.image,0,0.10)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.counter = 0
+    
+    def load_images(self):
+        self.idling_frames = [pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_000.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_001.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_002.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_003.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_004.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_005.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_006.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_007.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_008.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_009.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_010.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_011.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_012.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_013.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_014.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_015.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_016.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_017.png")]
+        for frame in self.idling_frames:
+            frame.set_colorkey(ALPHA)
+    
+    def move(self):
+        distance = 80
+        speed = 8
+
+        if self.counter >= 0 and self.counter <= distance:
+            self.rect.x += speed
+        elif self.counter >= distance and self.counter <= distance*2:
+            self.rect.x -= speed
+        else:
+            self.counter = 0
+
+        self.counter += 1
+class Difficulty(pygame.sprite.Sprite):
+    def easy(lvl,eloc):
+        if lvl == 1:
+            enemy = Orc(eloc[0],eloc[1]) # spawn enemy
+            enemy_list = pygame.sprite.Group() # create enemy group
+            enemy_list.add(enemy)              # add enemy to group
+        if lvl == 2:
+            print("Level " + str(lvl) )
+
+        return enemy_list
