@@ -111,7 +111,13 @@ class Orc(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.platforms = pygame.sprite.Group()
+        for plat in Platform_list:
+            p = platform(*plat)
         self.counter = 0
+        self.pos = vec(700,600)
+        self.vel = vec(0,0)
+        self.acc = vec(0,0)   
     
     def load_images(self):
         self.idling_frames = [pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_000.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_001.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_002.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_003.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_004.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_005.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_006.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_007.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_008.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_009.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_010.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_011.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_012.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_013.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_014.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_015.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_016.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_017.png")]
@@ -121,15 +127,29 @@ class Orc(pygame.sprite.Sprite):
     def move(self):
         distance = 80
         speed = 8
+        self.acc = vec(0,0.7)
+        self.acc.x += self.vel.x * PLAYER_FRICTION
+        self.vel += self.acc
+        if abs(self.vel.x) < 0.1:
+            self.vel.x = 0
+        self.pos += self.vel + 0.5 * self.acc
+        self.rect.midbottom = self.pos
 
-        if self.counter >= 0 and self.counter <= distance:
+        if self.vel.y > 0:
+            hits = pygame.sprite.spritecollide(self, self.platforms, False)
+            if hits:
+                self.pos.y = hits[0].rect.top
+                self.vel.y = 0
+        
+        '''if self.counter >= 0 and self.counter <= distance:
             self.rect.x += speed
         elif self.counter >= distance and self.counter <= distance*2:
             self.rect.x -= speed
         else:
             self.counter = 0
 
-        self.counter += 1
+        self.counter += 1'''
+
 class Difficulty(pygame.sprite.Sprite):
     def easy(lvl,eloc):
         if lvl == 1:

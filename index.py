@@ -30,6 +30,7 @@ class Game:
         eloc = []
         eloc = [700,600]
         self.enemy_list = Difficulty.easy(1,eloc)
+        self.enemy = Orc(eloc[0],eloc[1])
         self.all_sprites.add(self.player)
         #Adds the platforms from the platform list to the location while adding them to the two sprite groups
         for plat in Platform_list:
@@ -62,12 +63,13 @@ class Game:
         for enemy in hit_list:
             self.player.health -= 1
             print(self.player.health)
+        
         #Check for scrolling
-        if self.player.rect.right >= Width / 2:
+        if self.player.rect.right >= (Width - (Width / 4)):
             self.player.pos.x -= abs(self.player.vel.x) 
             for plat in self.platforms:
                 plat.rect.x -= abs(self.player.vel.x)        
-        if self.player.rect.right <= Width / 2:
+        if self.player.rect.left <= Width / 4:
             self.player.pos.x += abs(self.player.vel.x) 
             for plat in self.platforms:
                 plat.rect.x += abs(self.player.vel.x)    
