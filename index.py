@@ -27,10 +27,13 @@ class Game:
         self.platforms = pygame.sprite.Group()
         #Places the player in the centre of the screen and adds player to all_sprites group
         self.player = Mage(self)
-        eloc = []
-        eloc = [700,600]
-        self.enemy_list = Difficulty.easy(1,eloc)
-        self.enemy = Orc(eloc[0],eloc[1])
+        #eloc = []
+        #eloc = [700,600]
+        #self.enemy_list = Difficulty.easy(1,eloc)
+        self.enemy = Orc(self,700,600)
+        self.enemy_list = pygame.sprite.Group()
+        self.enemy_list.add(self.enemy)
+        self.all_sprites.add(self.player)
         self.all_sprites.add(self.player)
         #Adds the platforms from the platform list to the location while adding them to the two sprite groups
         for plat in Platform_list:
@@ -52,6 +55,7 @@ class Game:
     def update(self): #Game Loop - Update
         #Updates the all_sprites group
         self.all_sprites.update()
+        self.enemy_list.update()
         #Checks for collision between player and platform
         if self.player.vel.y > 0:
             hits = pygame.sprite.spritecollide(self.player, self.platforms, False)
@@ -63,6 +67,12 @@ class Game:
         for enemy in hit_list:
             self.player.health -= 1
             print(self.player.health)
+        if self.enemy.vel.y > 0:
+            hits = pygame.sprite.spritecollide(self.enemy, self.platforms, False)
+            if hits:
+                self.enemy.pos.y = hits[0].rect.top
+                self.enemy.vel.y = 0
+        
         
         #Check for scrolling
         if self.player.rect.right >= (Width - (Width / 4)):
@@ -91,8 +101,8 @@ class Game:
         #self.screen.fill(Blue)
         #Draws the all_sprites group
         self.enemy_list.draw(self.screen)
-        for e in self.enemy_list:
-            e.move()
+        #for e in self.enemy_list:
+            #e.move()
         self.all_sprites.draw(self.screen)
         #The display flip is always last in the game loop.
         pygame.display.flip()
