@@ -111,9 +111,7 @@ class Orc(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.platforms = pygame.sprite.Group()
-        for plat in Platform_list:
-            p = platform(*plat)
+        self.hit = False
         self.counter = 0
         self.pos = vec(700,600)
         self.vel = vec(0,0)

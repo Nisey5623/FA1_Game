@@ -65,8 +65,14 @@ class Game:
                 self.player.jumping = False
         hit_list = pygame.sprite.spritecollide(self.player, self.enemy_list, False)
         for enemy in hit_list:
-            self.player.health -= 1
-            print(self.player.health)
+            if self.enemy.hit == False:
+                self.player.health -= 1
+                self.enemy.hit = False
+                
+                print(self.player.health)
+                #if timer > 3:
+                    #self.enemy.hit = False
+
         if self.enemy.vel.y > 0:
             hits = pygame.sprite.spritecollide(self.enemy, self.platforms, False)
             if hits:

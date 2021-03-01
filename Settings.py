@@ -1,6 +1,6 @@
 #Sets the width and the height for the game display.
-Width = 1540
-Height = 800
+Width = 1024
+Height = 768
 #Sets game speed.
 FPS = 60
 #Defined variables
