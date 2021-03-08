@@ -44,6 +44,8 @@ class Mage(pygame.sprite.Sprite):
     def update(self):
         self.animate()
         self.acc = vec(0,0.7)
+        if pygame.mouse.get_pressed() == (1,0,0):
+            if shooting:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             self.acc.x = -PLAYER_ACC
@@ -90,6 +92,19 @@ class Mage(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
         self.mask = pygame.mask.from_surface(self.image)
+        
+
+class Ability(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.load_images()
+        self.image = self.air_frames[0]
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def load_images(self):
+        self.air_frames = [pygame.image.load("Mage/Fire_Extra_Update/fire_extra1.png"), pygame.image.load("Mage/Fire_Extra_Update/fire_extra2.png"), pygame.image.load("Mage/Fire_Extra_Update/fire_extra3.png")]
 
 class platform(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h):
@@ -103,6 +118,9 @@ class platform(pygame.sprite.Sprite):
 class Orc(pygame.sprite.Sprite):
     def __init__(self,game,x,y):
         pygame.sprite.Sprite.__init__(self)
+        self.walking = False
+        self.current_frame = 0
+        self.last_update = 0
         self.load_images()
         self.image = self.idling_frames[0]
         self.image.convert_alpha()
@@ -113,32 +131,52 @@ class Orc(pygame.sprite.Sprite):
         self.rect.y = y
         self.hit = False
         self.counter = 0
-        self.pos = vec(700,600)
         self.vel = vec(0,0)
-        self.acc = vec(0,0)   
     
     def load_images(self):
-        self.idling_frames = [pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_000.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_001.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_002.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_003.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_004.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_005.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_006.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_007.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_008.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_009.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_010.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_011.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_012.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_013.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_014.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_015.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_016.png"), pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_017.png")]
+        self.idling_frames = [pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_000.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_001.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_002.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_003.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_004.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_005.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_006.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_007.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_008.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_009.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_010.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_011.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_012.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_013.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_014.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_015.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_016.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_017.png"),0,0.10)]
         for frame in self.idling_frames:
             frame.set_colorkey(ALPHA)
 
+    def animate(self):
+        now = pygame.time.get_ticks()
+        if self.vel.x != 0:
+            self.walking = True
+        else:
+            self.walking = False
+        # show walk animation
+        if self.walking:
+            if now - self.last_update > 180:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
+                if self.vel.x > 0:
+                    self.image = self.walk_frames_r[self.current_frame]
+                else:
+                    self.image = self.walk_frames_l[self.current_frame]
+        if not self.walking:
+            if now - self.last_update > 350:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.idling_frames)
+                self.image = self.idling_frames[self.current_frame]
+        self.mask = pygame.mask.from_surface(self.image)
+
+
     def update(self):
-        self.acc = vec(0,0.7)
+        self.animate()
+        '''self.acc = vec(0,0.7)
         self.acc.x += self.vel.x * PLAYER_FRICTION
         self.vel += self.acc
         if abs(self.vel.x) < 0.1:
             self.vel.x = 0
         self.pos += self.vel + 0.5 * self.acc
-        self.rect.midbottom = self.pos
-        
+        self.rect.midbottom = self.pos'''
 
-class Difficulty(pygame.sprite.Sprite):
-    def easy(lvl,eloc):
-        if lvl == 1:
-            enemy = Orc(eloc[0],eloc[1]) # spawn enemy
-            enemy_list = pygame.sprite.Group() # create enemy group
-            enemy_list.add(enemy)              # add enemy to group
-        if lvl == 2:
-            print("Level " + str(lvl) )
+    '''def move(self):
+        if self.counter >= 0 and self.counter <= distance:
+            self.rect.x += speed
+        elif self.counter >= distance and self.counter <= distance*2:
+            self.rect.x -= speed
+        else:
+            self.counter = 0
 
-        return enemy_list
+        self.counter += 1'''

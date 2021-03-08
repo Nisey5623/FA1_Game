@@ -1,4 +1,5 @@
 import pygame
+import pygame_menu
 import random
 import os,sys
 from Settings import *
@@ -25,12 +26,12 @@ class Game:
         #Creates a sprite group for all sprites and all platforms
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.platforms = pygame.sprite.Group()
-        #Places the player in the centre of the screen and adds player to all_sprites group
+        #Places the player in the scentre of the screen and adds player to all_sprites group
         self.player = Mage(self)
         #eloc = []
         #eloc = [700,600]
         #self.enemy_list = Difficulty.easy(1,eloc)
-        self.enemy = Orc(self,700,600)
+        self.enemy = Orc(self,700,668)
         self.enemy_list = pygame.sprite.Group()
         self.enemy_list.add(self.enemy)
         self.all_sprites.add(self.player)
@@ -42,6 +43,7 @@ class Game:
             self.platforms.add(p)
         #Runs the game loop from below
         self.run()
+        return
 
     def run(self): #Game Loop
         #Sets the playing variable to while true game updates, checks events and draws while playing is true
@@ -56,6 +58,7 @@ class Game:
         #Updates the all_sprites group
         self.all_sprites.update()
         self.enemy_list.update()
+        #self.enemy_list.update()
         #Checks for collision between player and platform
         if self.player.vel.y > 0:
             hits = pygame.sprite.spritecollide(self.player, self.platforms, False)
@@ -73,22 +76,28 @@ class Game:
                 #if timer > 3:
                     #self.enemy.hit = False
 
-        if self.enemy.vel.y > 0:
+        '''if self.enemy.vel.y > 0:
             hits = pygame.sprite.spritecollide(self.enemy, self.platforms, False)
             if hits:
                 self.enemy.pos.y = hits[0].rect.top
-                self.enemy.vel.y = 0
+                self.enemy.vel.y = 0'''
         
         
         #Check for scrolling
         if self.player.rect.right >= (Width - (Width / 4)):
             self.player.pos.x -= abs(self.player.vel.x) 
             for plat in self.platforms:
-                plat.rect.x -= abs(self.player.vel.x)        
+                plat.rect.x -= abs(self.player.vel.x)   
+            for e in self.enemy_list:
+                e.rect.x -= abs(self.player.vel.x)         
         if self.player.rect.left <= Width / 4:
             self.player.pos.x += abs(self.player.vel.x) 
             for plat in self.platforms:
-                plat.rect.x += abs(self.player.vel.x)    
+                plat.rect.x += abs(self.player.vel.x)
+            for e in self.enemy_list:
+                e.rect.x += abs(self.player.vel.x)
+        '''for plat in self.platforms:
+                self.enemy.rect.x += max(abs(self.enemy.vel.x), 2)'''
     
     def events(self): #Game Loop - Events
         for event in pygame.event.get():
@@ -99,6 +108,8 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.player.jump()
+        '''for e in self.enemy_list:
+            e.move()'''
 
     def draw(self): #Game Loop - Draw  
         background = pygame.image.load("Temple Background.jpg") 
@@ -114,17 +125,22 @@ class Game:
         pygame.display.flip()
 
     def show_start_screen(self): #Game Start Screen
-        pass
+        menu = pygame_menu.Menu(300,400,'Marlin the Mage', theme=pygame_menu.themes.THEME_BLUE)
+        menu.add_button('Play',self.new)
+        menu.add_button('Shop', pygame_menu.events.EXIT)
+        menu.add_button('Times', pygame_menu.events.EXIT)
+        menu.add_button('Quit', pygame_menu.events.EXIT)
+        menu.mainloop(self.screen)
 
     def show_go_screen(self): #Game End Screen
         pass
 
-ToP = Game()
-ToP.show_start_screen()
+MtM = Game()
+MtM.show_start_screen()
 #While running variable is equal to true the game runs and quits when closed
-while ToP.running:
-    ToP.new()
-    ToP.show_go_screen()
+while MtM.running:
+    MtM.new()
+    MtM.show_go_screen()
 
 pygame.quit()
 sys.exit()
