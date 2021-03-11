@@ -19,6 +19,7 @@ class Game:
         self.Clock = pygame.time.Clock()
         #Variable stating that running is true for game loop below
         self.running = True
+        self.shooting = True
         
         
 
@@ -26,12 +27,13 @@ class Game:
         #Creates a sprite group for all sprites and all platforms
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.platforms = pygame.sprite.Group()
+        self.fireballs = pygame.sprite.Group()
         #Places the player in the scentre of the screen and adds player to all_sprites group
         self.player = Mage(self)
         #eloc = []
         #eloc = [700,600]
         #self.enemy_list = Difficulty.easy(1,eloc)
-        self.enemy = Orc(self,700,668)
+        self.enemy = Orc(self,700,668, self.player.pos.x)
         self.enemy_list = pygame.sprite.Group()
         self.enemy_list.add(self.enemy)
         self.all_sprites.add(self.player)
@@ -58,8 +60,20 @@ class Game:
         #Updates the all_sprites group
         self.all_sprites.update()
         self.enemy_list.update()
+        self.fireballs.update()
         #self.enemy_list.update()
         #Checks for collision between player and platform
+        self.enemy_move = self.player.pos.x - self.enemy.rect.x
+        if self.enemy_move < 0:
+            pass
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        if pygame.mouse.get_pressed() == (1,0,0):
+            if self.shooting:
+                self.fire = Ability(self.player.pos.x,self.player.pos.y-30, mouse_x, mouse_y)
+                self.fireballs.add(self.fire)
+                print("true")
+                self.shooting = False
+                pygame.time.set_timer(pygame.USEREVENT + 1, 500)
         if self.player.vel.y > 0:
             hits = pygame.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
@@ -75,6 +89,8 @@ class Game:
                 print(self.player.health)
                 #if timer > 3:
                     #self.enemy.hit = False
+        fire_enemy_hit = pygame.sprite.groupcollide(self.enemy_list,self.fireballs, True, True)
+        fire_plat_hit = pygame.sprite.groupcollide(self.fireballs,self.platforms, True, False)
 
         '''if self.enemy.vel.y > 0:
             hits = pygame.sprite.spritecollide(self.enemy, self.platforms, False)
@@ -105,19 +121,23 @@ class Game:
             if event.type == pygame.QUIT:
                 self.playing = False
             self.running = False
+            if event.type == pygame.USEREVENT + 1:
+                self.shooting = True
+                pygame.time.set_timer(pygame.USEREVENT + 1,0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.player.jump()
         '''for e in self.enemy_list:
             e.move()'''
 
-    def draw(self): #Game Loop - Draw  
+    def draw(self): #Game zLoop - Draw  
         background = pygame.image.load("Temple Background.jpg") 
         self.screen.blit(background, (0,0))
         #Sets a blue screen
         #self.screen.fill(Blue)
         #Draws the all_sprites group
         self.enemy_list.draw(self.screen)
+        self.fireballs.draw(self.screen)
         #for e in self.enemy_list:
             #e.move()
         self.all_sprites.draw(self.screen)

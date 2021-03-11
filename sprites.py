@@ -1,5 +1,7 @@
 #Sprite classes for platform game
 import pygame
+import math
+import random
 from Settings import *
 
 vec = pygame.math.Vector2
@@ -11,8 +13,8 @@ class Mage(pygame.sprite.Sprite):
         self.game = game
         self.walking = False
         self.jumping = True
-        self.current_frame = 0
         self.last_update = 0
+        self.current_frame = 0
         self.load_images()
         self.image = self.standing_frames[0]
         self.rect = self.image.get_rect()
@@ -44,8 +46,6 @@ class Mage(pygame.sprite.Sprite):
     def update(self):
         self.animate()
         self.acc = vec(0,0.7)
-        if pygame.mouse.get_pressed() == (1,0,0):
-            if shooting:
         keys = pygame.key.get_pressed()
         if keys[pygame.K_a]:
             self.acc.x = -PLAYER_ACC
@@ -95,16 +95,41 @@ class Mage(pygame.sprite.Sprite):
         
 
 class Ability(pygame.sprite.Sprite):
-    def __init__(self,x,y):
+    def __init__(self,x,y,tx,ty):
         pygame.sprite.Sprite.__init__(self)
         self.load_images()
         self.image = self.air_frames[0]
+        self.image.convert_alpha()
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.centerx = x
+        self.rect.centery = y
+        self.x_wall = Width
+        self.y_wall = Height
+        xdifference = tx - self.rect.centerx
+        ydifference = ty - self.rect.centery
+        hyp = math.hypot(xdifference,ydifference)
+        self.hspeed = xdifference / hyp * 7
+        self.vspeed = ydifference / hyp * 7
+        angle = (180 / math.pi) * math.atan2(xdifference,ydifference) - 90
+        self.image,self.rect = self.rot_center(self.image,self.rect,angle)
+
+    def update(self):
+        self.rect.centerx += self.hspeed
+        if (self.rect.centerx > self.x_wall) or (self.rect.centerx < 0):
+            self.kill()
+        self.rect.centery += self.vspeed
+        if (self.rect.centery > self.y_wall) or (self.rect.centery < 0):
+            self.kill()
+        return
 
     def load_images(self):
         self.air_frames = [pygame.image.load("Mage/Fire_Extra_Update/fire_extra1.png"), pygame.image.load("Mage/Fire_Extra_Update/fire_extra2.png"), pygame.image.load("Mage/Fire_Extra_Update/fire_extra3.png")]
+
+    def rot_center(self, image, rect, angle):
+        """rotate an image while keeping its center"""
+        rot_image = pygame.transform.rotate(image, angle)
+        rot_rect = rot_image.get_rect(center=rect.center)
+        return rot_image, rot_rect
 
 class platform(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h):
@@ -116,7 +141,7 @@ class platform(pygame.sprite.Sprite):
         self.rect.y = y
 
 class Orc(pygame.sprite.Sprite):
-    def __init__(self,game,x,y):
+    def __init__(self,game,x,y,tx):
         pygame.sprite.Sprite.__init__(self)
         self.walking = False
         self.current_frame = 0
@@ -127,11 +152,16 @@ class Orc(pygame.sprite.Sprite):
         self.image.set_colorkey(ALPHA)
         self.image = pygame.transform.rotozoom(self.image,0,0.10)
         self.rect = self.image.get_rect()
-        self.rect.x = x
+        self.rect.centerx = x
         self.rect.y = y
         self.hit = False
         self.counter = 0
         self.vel = vec(0,0)
+        self.tx = tx
+        self.x_wall = Width
+        xdifference = self.tx - self.rect.centerx
+        hyp = math.hypot(xdifference)
+        self.hspeed = xdifference / hyp * 3
     
     def load_images(self):
         self.idling_frames = [pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_000.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_001.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_002.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_003.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_004.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_005.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_006.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_007.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_008.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_009.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_010.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_011.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_012.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_013.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_014.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_015.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_016.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_017.png"),0,0.10)]
@@ -159,24 +189,8 @@ class Orc(pygame.sprite.Sprite):
                 self.current_frame = (self.current_frame + 1) % len(self.idling_frames)
                 self.image = self.idling_frames[self.current_frame]
         self.mask = pygame.mask.from_surface(self.image)
-
-
     def update(self):
         self.animate()
-        '''self.acc = vec(0,0.7)
-        self.acc.x += self.vel.x * PLAYER_FRICTION
-        self.vel += self.acc
-        if abs(self.vel.x) < 0.1:
-            self.vel.x = 0
-        self.pos += self.vel + 0.5 * self.acc
-        self.rect.midbottom = self.pos'''
-
-    '''def move(self):
-        if self.counter >= 0 and self.counter <= distance:
-            self.rect.x += speed
-        elif self.counter >= distance and self.counter <= distance*2:
-            self.rect.x -= speed
-        else:
-            self.counter = 0
-
-        self.counter += 1'''
+        self.rect.centerx += self.hspeed
+        if (self.rect.centerx > self.x_wall) or (self.rect.centerx < 0):
+            self.kill()
