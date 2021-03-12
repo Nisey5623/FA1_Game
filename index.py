@@ -33,7 +33,7 @@ class Game:
         #eloc = []
         #eloc = [700,600]
         #self.enemy_list = Difficulty.easy(1,eloc)
-        self.enemy = Orc(self,700,668, self.player.pos.x)
+        self.enemy = Orc(self,400,668)
         self.enemy_list = pygame.sprite.Group()
         self.enemy_list.add(self.enemy)
         self.all_sprites.add(self.player)
@@ -61,17 +61,24 @@ class Game:
         self.all_sprites.update()
         self.enemy_list.update()
         self.fireballs.update()
+        xdifference = self.player.rect.x - self.enemy.rect.x
+        #hyp = math.hypot(xdifference)
+        if xdifference != 0:
+            self.hspeed = (xdifference / xdifference * 3)
+        else:
+            self.hspeed = 0
+        if self.player.rect.x < self.enemy.rect.x:
+            self.enemy.rect.x -= self.hspeed
+        if self.player.rect.x > self.enemy.rect.x:
+            self.enemy.rect.x += self.hspeed 
+
         #self.enemy_list.update()
         #Checks for collision between player and platform
-        self.enemy_move = self.player.pos.x - self.enemy.rect.x
-        if self.enemy_move < 0:
-            pass
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed() == (1,0,0):
             if self.shooting:
                 self.fire = Ability(self.player.pos.x,self.player.pos.y-30, mouse_x, mouse_y)
                 self.fireballs.add(self.fire)
-                print("true")
                 self.shooting = False
                 pygame.time.set_timer(pygame.USEREVENT + 1, 500)
         if self.player.vel.y > 0:
@@ -85,18 +92,13 @@ class Game:
             if self.enemy.hit == False:
                 self.player.health -= 1
                 self.enemy.hit = False
+
                 
-                print(self.player.health)
+                #print(self.player.health)
                 #if timer > 3:
                     #self.enemy.hit = False
         fire_enemy_hit = pygame.sprite.groupcollide(self.enemy_list,self.fireballs, True, True)
         fire_plat_hit = pygame.sprite.groupcollide(self.fireballs,self.platforms, True, False)
-
-        '''if self.enemy.vel.y > 0:
-            hits = pygame.sprite.spritecollide(self.enemy, self.platforms, False)
-            if hits:
-                self.enemy.pos.y = hits[0].rect.top
-                self.enemy.vel.y = 0'''
         
         
         #Check for scrolling
@@ -105,15 +107,13 @@ class Game:
             for plat in self.platforms:
                 plat.rect.x -= abs(self.player.vel.x)   
             for e in self.enemy_list:
-                e.rect.x -= abs(self.player.vel.x)         
+                e.rect.x -= abs(self.player.vel.x)
         if self.player.rect.left <= Width / 4:
             self.player.pos.x += abs(self.player.vel.x) 
             for plat in self.platforms:
                 plat.rect.x += abs(self.player.vel.x)
             for e in self.enemy_list:
                 e.rect.x += abs(self.player.vel.x)
-        '''for plat in self.platforms:
-                self.enemy.rect.x += max(abs(self.enemy.vel.x), 2)'''
     
     def events(self): #Game Loop - Events
         for event in pygame.event.get():
@@ -127,8 +127,6 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.player.jump()
-        '''for e in self.enemy_list:
-            e.move()'''
 
     def draw(self): #Game zLoop - Draw  
         background = pygame.image.load("Temple Background.jpg") 
@@ -138,6 +136,8 @@ class Game:
         #Draws the all_sprites group
         self.enemy_list.draw(self.screen)
         self.fireballs.draw(self.screen)
+        #pygame.draw.rect(self.screen, Red, self.player.rect)
+        #pygame.draw.rect(self.screen, Red, self.enemy.rect)
         #for e in self.enemy_list:
             #e.move()
         self.all_sprites.draw(self.screen)
