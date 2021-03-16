@@ -192,3 +192,58 @@ class Orc(pygame.sprite.Sprite):
             #self.kill()
             pass
         return
+class Wraith(pygame.sprite.Sprite):
+    def __init__(self,game,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.walking = False
+        self.current_frame = 0
+        self.last_update = 0
+        self.load_images()
+        self.image = self.attacking_frames[0]
+        self.image.convert_alpha()
+        self.image.set_colorkey(ALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.hit = False
+        self.counter = 0
+        self.vel = vec(0,0)
+        self.x_wall = Width
+        self.y_wall = Height
+
+    
+    def load_images(self):
+        self.attacking_frames = [pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_000.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_001.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_002.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_003.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_004.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_005.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_006.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_007.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_008.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_009.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_010.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_011.png"),0,0.20)]
+        for frame in self.attacking_frames:
+            frame.set_colorkey(ALPHA)
+
+    def animate(self):
+        now = pygame.time.get_ticks()
+        if self.vel.x != 0:
+            self.walking = True
+        else:
+            self.walking = False
+        # show walk animation
+        if self.walking:
+            if now - self.last_update > 180:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
+                if self.vel.x > 0:
+                    self.image = self.walk_frames_r[self.current_frame]
+                else:
+                    self.image = self.walk_frames_l[self.current_frame]
+        if not self.walking:
+            if now - self.last_update > 350:
+                self.last_update = now
+                self.current_frame = (self.current_frame + 1) % len(self.attacking_frames)
+                self.image = self.attacking_frames[self.current_frame]
+        self.mask = pygame.mask.from_surface(self.image)
+
+
+    def update(self):
+        self.animate()
+        if (self.rect.x > self.x_wall) or (self.rect.x < 0):
+            #self.kill()
+            pass
+        return
+    

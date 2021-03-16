@@ -34,10 +34,13 @@ class Game:
         #eloc = [700,600]
         #self.enemy_list = Difficulty.easy(1,eloc)
         self.enemy = Orc(self,400,668)
+        self.wraith = Wraith(self,300,300)
         self.enemy_list = pygame.sprite.Group()
         self.enemy_list.add(self.enemy)
+        self.enemy_list.add(self.wraith)
         self.all_sprites.add(self.player)
         self.all_sprites.add(self.player)
+        self.wraithupdate = True
         #Adds the platforms from the platform list to the location while adding them to the two sprite groups
         for plat in Platform_list:
             p = platform(*plat)
@@ -61,19 +64,36 @@ class Game:
         self.all_sprites.update()
         self.enemy_list.update()
         self.fireballs.update()
-        xdifference = self.player.rect.x - self.enemy.rect.x
+        Orcxdifference = self.player.rect.x - self.enemy.rect.x
+        Wraithxdifference = self.player.rect.x - self.wraith.rect.x
+        Wraithydifference = self.player.rect.x - self.wraith.rect.x
         #hyp = math.hypot(xdifference)
-        if xdifference != 0:
-            self.hspeed = (xdifference / xdifference * 3)
+        if Orcxdifference != 0:
+            self.orchspeed = (Orcxdifference / Orcxdifference * 3)
         else:
-            self.hspeed = 0
+            self.orchspeed = 0
         if self.player.rect.x < self.enemy.rect.x:
-            self.enemy.rect.x -= self.hspeed
+            self.enemy.rect.x -= self.orchspeed
         if self.player.rect.x > self.enemy.rect.x:
-            self.enemy.rect.x += self.hspeed 
+            self.enemy.rect.x += self.orchspeed 
+        if self.wraithupdate:
+            if Wraithxdifference != 0 and Wraithydifference != 0:
+                self.wraithhspeed = (Wraithxdifference / Wraithxdifference * 3)
+                self.wraithvspeed = (Wraithydifference / Wraithydifference * 3)
+            else:
+                self.wraithhspeed = 0
+                self.wraithvspeed = 0
+            if self.player.rect.x < self.wraith.rect.x:
+                self.wraith.rect.x -= self.wraithhspeed
+            if self.player.rect.x > self.wraith.rect.x:
+                self.wraith.rect.x += self.wraithhspeed 
+            if self.player.rect.y < self.wraith.rect.y:
+                self.wraith.rect.y -= self.wraithvspeed
+            if self.player.rect.y > self.wraith.rect.y:
+                self.wraith.rect.y += self.wraithvspeed 
+            self.wraithupdate = True
+            pygame.time.set_timer(pygame.USEREVENT + 2, 33)
 
-        #self.enemy_list.update()
-        #Checks for collision between player and platform
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed() == (1,0,0):
             if self.shooting:
@@ -124,6 +144,9 @@ class Game:
             if event.type == pygame.USEREVENT + 1:
                 self.shooting = True
                 pygame.time.set_timer(pygame.USEREVENT + 1,0)
+            if event.type == pygame.USEREVENT + 2:
+                self.wraithupdate = True
+                pygame.time.set_timer(pygame.USEREVENT + 2, 0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.player.jump()
