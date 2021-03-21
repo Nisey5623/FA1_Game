@@ -15,6 +15,7 @@ class Game:
         pygame.font.init()
         #Creates pygame window, caption and speed monitor.
         self.screen = pygame.display.set_mode((Width, Height))
+        self.myfont = pygame.font.SysFont('Calibri', 30)
         pygame.display.set_caption("Tower of Power")
         self.Clock = pygame.time.Clock()
         #Variable stating that running is true for game loop below
@@ -30,17 +31,17 @@ class Game:
         self.fireballs = pygame.sprite.Group()
         #Places the player in the scentre of the screen and adds player to all_sprites group
         self.player = Mage(self)
-        #eloc = []
-        #eloc = [700,600]
-        #self.enemy_list = Difficulty.easy(1,eloc)
         self.enemy = Orc(self,400,668)
         self.wraith = Wraith(self,300,300)
+        self.caster = Caster(self,800,150)
         self.enemy_list = pygame.sprite.Group()
         self.enemy_list.add(self.enemy)
+        self.enemy_list.add(self.caster)
         self.enemy_list.add(self.wraith)
         self.all_sprites.add(self.player)
         self.all_sprites.add(self.player)
         self.wraithupdate = True
+        self.hit = False
         #Adds the platforms from the platform list to the location while adding them to the two sprite groups
         for plat in Platform_list:
             p = platform(*plat)
@@ -64,35 +65,47 @@ class Game:
         self.all_sprites.update()
         self.enemy_list.update()
         self.fireballs.update()
+        if self.caster.casting_frames_l[17]:
+            enemy_fire = Ability(self.caster.rect.x,self.caster.rect.y,self.player.rect.x,self.player.rect.y)
         Orcxdifference = self.player.rect.x - self.enemy.rect.x
         Wraithxdifference = self.player.rect.x - self.wraith.rect.x
         Wraithydifference = self.player.rect.x - self.wraith.rect.x
         #hyp = math.hypot(xdifference)
         if Orcxdifference != 0:
             self.orchspeed = (Orcxdifference / Orcxdifference * 3)
+            if Orcxdifference > 800:
+                self.orchspeed = 0
         else:
             self.orchspeed = 0
         if self.player.rect.x < self.enemy.rect.x:
             self.enemy.rect.x -= self.orchspeed
+            self.enemy.animate_left()
         if self.player.rect.x > self.enemy.rect.x:
             self.enemy.rect.x += self.orchspeed 
-        if self.wraithupdate:
-            if Wraithxdifference != 0 and Wraithydifference != 0:
-                self.wraithhspeed = (Wraithxdifference / Wraithxdifference * 3)
-                self.wraithvspeed = (Wraithydifference / Wraithydifference * 3)
-            else:
-                self.wraithhspeed = 0
-                self.wraithvspeed = 0
-            if self.player.rect.x < self.wraith.rect.x:
-                self.wraith.rect.x -= self.wraithhspeed
-            if self.player.rect.x > self.wraith.rect.x:
-                self.wraith.rect.x += self.wraithhspeed 
+            self.enemy.animate_right()
+        if self.player.rect.x < self.caster.rect.x:
+            self.caster.animate_left()
+        if self.player.rect.x > self.caster.rect.x:
+            self.caster.animate_right()
+        if Wraithxdifference != 0 and Wraithydifference != 0:
+            self.wraithhspeed = (Wraithxdifference / Wraithxdifference * 2.5)
+            self.wraithvspeed = (Wraithydifference / Wraithydifference * 2.5)
+        else:
+            self.wraithhspeed = 0
+            self.wraithvspeed = 0
+        if self.player.rect.x < self.wraith.rect.x:
+            self.wraith.rect.x -= self.wraithhspeed
+            self.wraith.animate_left()
+        if self.player.rect.x > self.wraith.rect.x:
+            self.wraith.rect.x += self.wraithhspeed 
+            self.wraith.animate_right()
+        if self.wraithupdate:                
             if self.player.rect.y < self.wraith.rect.y:
                 self.wraith.rect.y -= self.wraithvspeed
             if self.player.rect.y > self.wraith.rect.y:
                 self.wraith.rect.y += self.wraithvspeed 
-            self.wraithupdate = True
-            pygame.time.set_timer(pygame.USEREVENT + 2, 33)
+            self.wraithupdate = False
+            pygame.time.set_timer(pygame.USEREVENT + 2, 25)
 
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed() == (1,0,0):
@@ -107,11 +120,19 @@ class Game:
                 self.player.pos.y = hits[0].rect.top
                 self.player.vel.y = 0
                 self.player.jumping = False
-        hit_list = pygame.sprite.spritecollide(self.player, self.enemy_list, False)
-        for enemy in hit_list:
-            if self.enemy.hit == False:
-                self.player.health -= 1
-                self.enemy.hit = False
+        if self.hit == False:
+            hit_list = pygame.sprite.spritecollide(self.player, self.enemy_list, False)
+            for enemy in hit_list:
+                if self.enemy.hit == False:
+                    self.player.health -= 1
+                    self.enemy.hit = False
+                    self.player.pos.x += 50
+                    self.hit = True
+                    pygame.time.set_timer(pygame.USEREVENT + 3, 2000)
+                    timer = 2000 - int(pygame.time.get_ticks()/1000)
+                    timer = str(timer)
+                    self.hit_timer = self.myfont.render("Time: " + timer,True,(255,255,255))
+                    self.screen.blit(self.hit_timer,(self.player.pos.x,self.player.pos.y + 50))
 
                 
                 #print(self.player.health)
@@ -147,6 +168,9 @@ class Game:
             if event.type == pygame.USEREVENT + 2:
                 self.wraithupdate = True
                 pygame.time.set_timer(pygame.USEREVENT + 2, 0)
+            if event.type == pygame.USEREVENT + 3:
+                self.hit = False
+                pygame.time.set_timer(pygame.USEREVENT + 3, 0)
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.player.jump()
@@ -154,6 +178,7 @@ class Game:
     def draw(self): #Game zLoop - Draw  
         background = pygame.image.load("Temple Background.jpg") 
         self.screen.blit(background, (0,0))
+        
         #Sets a blue screen
         #self.screen.fill(Blue)
         #Draws the all_sprites group

@@ -145,103 +145,131 @@ class Orc(pygame.sprite.Sprite):
         self.current_frame = 0
         self.last_update = 0
         self.load_images()
-        self.image = self.idling_frames[0]
+        self.image = self.idling_frames_r[0]
         self.image.convert_alpha()
         self.image.set_colorkey(ALPHA)
-        #self.image = pygame.transform.rotozoom(self.image,0,0.10)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.hit = False
-        self.counter = 0
-        self.vel = vec(0,0)
         self.x_wall = Width
 
     
     def load_images(self):
-        self.idling_frames = [pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_000.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_001.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_002.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_003.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_004.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_005.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_006.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_007.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_008.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_009.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_010.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_011.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_012.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_013.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_014.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_015.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_016.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_017.png"),0,0.10)]
-        for frame in self.idling_frames:
+        self.idling_frames_r = [pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_000.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_001.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_002.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_003.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_004.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_005.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_006.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_007.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_008.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_009.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_010.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_011.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_012.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_013.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_014.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_015.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_016.png"),0,0.10), pygame.transform.rotozoom(pygame.image.load("Orc/Idle Blinking_Edit/0_Orc_Idle Blinking_017.png"),0,0.10)]
+        for frame in self.idling_frames_r:
             frame.set_colorkey(ALPHA)
+        self.idling_frames_l = []
+        for frame in self.idling_frames_r:
+            frame.set_colorkey(ALPHA)
+            self.idling_frames_l.append(pygame.transform.flip(frame, True, False))
 
-    def animate(self):
+    def animate_right(self):
         now = pygame.time.get_ticks()
-        if self.vel.x != 0:
-            self.walking = True
-        else:
-            self.walking = False
-        # show walk animation
-        if self.walking:
-            if now - self.last_update > 180:
-                self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
-                if self.vel.x > 0:
-                    self.image = self.walk_frames_r[self.current_frame]
-                else:
-                    self.image = self.walk_frames_l[self.current_frame]
-        if not self.walking:
-            if now - self.last_update > 350:
-                self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.idling_frames)
-                self.image = self.idling_frames[self.current_frame]
+        if now - self.last_update > 180:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.idling_frames_l)
+            self.image = self.idling_frames_r[self.current_frame]
+        self.mask = pygame.mask.from_surface(self.image)
+    def animate_left(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > 180:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.idling_frames_l)
+            self.image = self.idling_frames_l[self.current_frame]
         self.mask = pygame.mask.from_surface(self.image)
 
 
     def update(self):
-        self.animate()
         if (self.rect.x > self.x_wall) or (self.rect.x < 0):
             #self.kill()
             pass
         return
-class Wraith(pygame.sprite.Sprite):
+
+class Caster(pygame.sprite.Sprite):
     def __init__(self,game,x,y):
         pygame.sprite.Sprite.__init__(self)
-        self.walking = False
         self.current_frame = 0
         self.last_update = 0
         self.load_images()
-        self.image = self.attacking_frames[0]
+        self.image = self.casting_frames_r[0]
+        self.image.convert_alpha()
+        self.image.set_colorkey(ALPHA)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    
+    def load_images(self):
+        self.casting_frames_r = [pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_000.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_001.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_002.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_003.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_004.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_005.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_006.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_007.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_008.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_009.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_010.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_011.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_012.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_013.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_014.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_015.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_016.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Cyan Wraith/Casting_Spells_Edit/Wraith_01_Casting Spells_017.png"),0,0.2)]
+        for frame in self.casting_frames_r:
+            frame.set_colorkey(ALPHA)
+        self.casting_frames_l = []
+        for frame in self.casting_frames_r:
+            frame.set_colorkey(ALPHA)
+            self.casting_frames_l.append(pygame.transform.flip(frame, True, False))
+
+    def animate_right(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > 180:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.casting_frames_l)
+            self.image = self.casting_frames_r[self.current_frame]
+        self.mask = pygame.mask.from_surface(self.image)
+
+    def animate_left(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > 180:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.casting_frames_l)
+            self.image = self.casting_frames_l[self.current_frame]
+        self.mask = pygame.mask.from_surface(self.image)        
+
+
+class Wraith(pygame.sprite.Sprite):
+    def __init__(self,game,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.current_frame = 0
+        self.last_update = 0
+        self.load_images()
+        self.image = self.flying_frames_r[0]
         self.image.convert_alpha()
         self.image.set_colorkey(ALPHA)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.hit = False
-        self.counter = 0
-        self.vel = vec(0,0)
         self.x_wall = Width
         self.y_wall = Height
 
     
     def load_images(self):
-        self.attacking_frames = [pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_000.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_001.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_002.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_003.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_004.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_005.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_006.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_007.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_008.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_009.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_010.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_011.png"),0,0.20)]
-        for frame in self.attacking_frames:
+        self.flying_frames_r = [pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_000.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_001.png"),0,0.2), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_002.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_003.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_004.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_005.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_006.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_007.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_008.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_009.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_010.png"),0,0.20), pygame.transform.rotozoom(pygame.image.load("Purple Wraith/Attacking_Edit/Wraith_03_Attack_011.png"),0,0.20)]
+        for frame in self.flying_frames_r:
             frame.set_colorkey(ALPHA)
+        self.flying_frames_l = []
+        for frame in self.flying_frames_r:
+            frame.set_colorkey(ALPHA)
+            self.flying_frames_l.append(pygame.transform.flip(frame, True, False))
+        
 
-    def animate(self):
+    def animate_right(self):
         now = pygame.time.get_ticks()
-        if self.vel.x != 0:
-            self.walking = True
-        else:
-            self.walking = False
-        # show walk animation
-        if self.walking:
-            if now - self.last_update > 180:
-                self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.walk_frames_l)
-                if self.vel.x > 0:
-                    self.image = self.walk_frames_r[self.current_frame]
-                else:
-                    self.image = self.walk_frames_l[self.current_frame]
-        if not self.walking:
-            if now - self.last_update > 350:
-                self.last_update = now
-                self.current_frame = (self.current_frame + 1) % len(self.attacking_frames)
-                self.image = self.attacking_frames[self.current_frame]
+        if now - self.last_update > 180:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.flying_frames_l)
+            self.image = self.flying_frames_r[self.current_frame]
+        self.mask = pygame.mask.from_surface(self.image)
+    def animate_left(self):
+        now = pygame.time.get_ticks()
+        if now - self.last_update > 180:
+            self.last_update = now
+            self.current_frame = (self.current_frame + 1) % len(self.flying_frames_l)
+            self.image = self.flying_frames_l[self.current_frame]
         self.mask = pygame.mask.from_surface(self.image)
 
 
     def update(self):
-        self.animate()
         if (self.rect.x > self.x_wall) or (self.rect.x < 0):
             #self.kill()
             pass
