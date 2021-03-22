@@ -267,11 +267,3 @@ class Wraith(pygame.sprite.Sprite):
             self.current_frame = (self.current_frame + 1) % len(self.flying_frames_l)
             self.image = self.flying_frames_l[self.current_frame]
         self.mask = pygame.mask.from_surface(self.image)
-
-
-    def update(self):
-        if (self.rect.x > self.x_wall) or (self.rect.x < 0):
-            #self.kill()
-            pass
-        return
-    
