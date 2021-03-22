@@ -4,9 +4,6 @@ import random
 import os,sys
 from Settings import *
 from sprites import *
-
-#Game Class
-
 class Game:
     def __init__(self): #Initialize game window
         #These three lines initialize the game, sound and font for the game.
@@ -15,8 +12,9 @@ class Game:
         pygame.font.init()
         #Creates pygame window, caption and speed monitor.
         self.screen = pygame.display.set_mode((Width, Height))
+        self.font_name = pygame.font.match_font('Calibri')
         self.myfont = pygame.font.SysFont('Calibri', 30)
-        pygame.display.set_caption("Tower of Power")
+        pygame.display.set_caption("Marlin the Mage")
         self.Clock = pygame.time.Clock()
         #Variable stating that running is true for game loop below
         self.running = True
@@ -29,6 +27,7 @@ class Game:
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.platforms = pygame.sprite.Group()
         self.fireballs = pygame.sprite.Group()
+        self.enemy_fireballs = pygame.sprite.Group()
         #Places the player in the scentre of the screen and adds player to all_sprites group
         self.player = Mage(self)
         self.enemy = Orc(self,400,668)
@@ -61,16 +60,16 @@ class Game:
             self.draw()
     
     def update(self): #Game Loop - Update
-        #Updates the all_sprites group
         self.all_sprites.update()
         self.enemy_list.update()
         self.fireballs.update()
-        if self.caster.casting_frames_l[17]:
+        self.enemy_fireballs.update()
+        if self.caster.current_frame == 17:
             enemy_fire = Ability(self.caster.rect.x,self.caster.rect.y,self.player.rect.x,self.player.rect.y)
+            self.enemy_fireballs.add(enemy_fire)
         Orcxdifference = self.player.rect.x - self.enemy.rect.x
         Wraithxdifference = self.player.rect.x - self.wraith.rect.x
         Wraithydifference = self.player.rect.x - self.wraith.rect.x
-        #hyp = math.hypot(xdifference)
         if Orcxdifference != 0:
             self.orchspeed = (Orcxdifference / Orcxdifference * 3)
             if Orcxdifference > 800:
@@ -132,12 +131,7 @@ class Game:
                     timer = 2000 - int(pygame.time.get_ticks()/1000)
                     timer = str(timer)
                     self.hit_timer = self.myfont.render("Time: " + timer,True,(255,255,255))
-                    self.screen.blit(self.hit_timer,(self.player.pos.x,self.player.pos.y + 50))
-
-                
-                #print(self.player.health)
-                #if timer > 3:
-                    #self.enemy.hit = False
+                    self.screen.blit(self.hit_timer,(self.player.pos.x,self.player.pos.y + 100))
         fire_enemy_hit = pygame.sprite.groupcollide(self.enemy_list,self.fireballs, True, True)
         fire_plat_hit = pygame.sprite.groupcollide(self.fireballs,self.platforms, True, False)
         
@@ -184,6 +178,7 @@ class Game:
         #Draws the all_sprites group
         self.enemy_list.draw(self.screen)
         self.fireballs.draw(self.screen)
+        self.enemy_fireballs.draw(self.screen)
         #pygame.draw.rect(self.screen, Red, self.player.rect)
         #pygame.draw.rect(self.screen, Red, self.enemy.rect)
         #for e in self.enemy_list:
@@ -193,15 +188,40 @@ class Game:
         pygame.display.flip()
 
     def show_start_screen(self): #Game Start Screen
-        menu = pygame_menu.Menu(300,400,'Marlin the Mage', theme=pygame_menu.themes.THEME_BLUE)
+        self.draw_text('Marlin the Mage',48,White,Width / 2,Height /4)
+        self.draw_text('Press Space to Play',24,White,Width/2,Height - Height/4)
+        pygame.display.flip()
+        self.wait_for_key()
+
+
+        '''menu = pygame_menu.Menu(300,400,'Marlin the Mage', theme=pygame_menu.themes.THEME_BLUE)
         menu.add_button('Play',self.new)
         menu.add_button('Shop', pygame_menu.events.EXIT)
         menu.add_button('Times', pygame_menu.events.EXIT)
         menu.add_button('Quit', pygame_menu.events.EXIT)
-        menu.mainloop(self.screen)
+        menu.mainloop(self.screen)'''
 
     def show_go_screen(self): #Game End Screen
         pass
+    
+    def wait_for_key(self):
+        waiting = True
+        while waiting:
+            self.Clock.tick(FPS)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    waiting = False
+                    self.running = False
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE:
+                        waiting = False
+
+    def draw_text(self, text, size, color, x, y):
+        font = pygame.font.Font(self.font_name, size)
+        text_surface = font.render(text, True, color)
+        text_rect = text_surface.get_rect()
+        text_rect.midtop = (x, y)
+        self.screen.blit(text_surface, text_rect)
 
 MtM = Game()
 MtM.show_start_screen()
