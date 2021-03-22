@@ -28,16 +28,24 @@ class Game:
         self.platforms = pygame.sprite.Group()
         self.fireballs = pygame.sprite.Group()
         self.enemy_fireballs = pygame.sprite.Group()
+        self.enemy_list = pygame.sprite.Group()
+        self.orc_list = pygame.sprite.Group()
+        self.caster_list = pygame.sprite.Group()
         #Places the player in the scentre of the screen and adds player to all_sprites group
         self.player = Mage(self)
-        self.enemy = Orc(self,400,668)
+        enemy_number = random.randint(1,3)
+        caster_number = random.randint(0,2)
+        for i in range(0,enemy_number):
+            self.orc_list.add(Orc(self,random.randint(100,1024),668))
         self.wraith = Wraith(self,300,300)
-        self.caster = Caster(self,800,150)
-        self.enemy_list = pygame.sprite.Group()
-        self.enemy_list.add(self.enemy)
-        self.enemy_list.add(self.caster)
+        for i in range(0,caster_number):
+            self.caster_list.add(Caster(self,random.randint(500,2000),random.randint(150,500)))
+        for c in self.caster_list:
+            self.platforms.add(platform(c.rect.x, c.rect.y+50,100,20,White))
+            self.all_sprites.add(self.platforms)
+        self.enemy_list.add(self.orc_list)
+        self.enemy_list.add(self.caster_list)
         self.enemy_list.add(self.wraith)
-        self.all_sprites.add(self.player)
         self.all_sprites.add(self.player)
         self.wraithupdate = True
         self.hit = False
@@ -62,33 +70,38 @@ class Game:
     def update(self): #Game Loop - Update
         self.all_sprites.update()
         self.enemy_list.update()
+        self.orc_list.update()
         self.fireballs.update()
         self.enemy_fireballs.update()
-        if self.caster.current_frame == 17:
-            enemy_fire = Ability(self.caster.rect.x,self.caster.rect.y,self.player.rect.x,self.player.rect.y)
-            self.enemy_fireballs.add(enemy_fire)
-        Orcxdifference = self.player.rect.x - self.enemy.rect.x
+        for i in self.orc_list:
+            self.Orcxdifference = self.player.rect.x - i.rect.x
+            if self.Orcxdifference != 0:
+                self.orchspeed = (self.Orcxdifference / self.Orcxdifference * random.randint(1,5))
+                if self.Orcxdifference > 800:
+                    self.orchspeed = 0
+            else:
+                self.orchspeed = 0
+            if self.player.rect.x < i.rect.x:
+                i.rect.x -= self.orchspeed
+                i.animate_left()
+            if self.player.rect.x > i.rect.x:
+                i.rect.x += self.orchspeed 
+                i.animate_right()
+        for c in self.caster_list:
+            if c.current_frame == 17:
+                enemy_fire = Ability(c.rect.x,c.rect.y,self.player.rect.x,self.player.rect.y)
+                self.enemy_fireballs.add(enemy_fire)
+            if self.player.rect.x < c.rect.x:
+                c.animate_left()
+            if self.player.rect.x > c.rect.x:
+                c.animate_right()
         Wraithxdifference = self.player.rect.x - self.wraith.rect.x
         Wraithydifference = self.player.rect.x - self.wraith.rect.x
-        if Orcxdifference != 0:
-            self.orchspeed = (Orcxdifference / Orcxdifference * 3)
-            if Orcxdifference > 800:
-                self.orchspeed = 0
-        else:
-            self.orchspeed = 0
-        if self.player.rect.x < self.enemy.rect.x:
-            self.enemy.rect.x -= self.orchspeed
-            self.enemy.animate_left()
-        if self.player.rect.x > self.enemy.rect.x:
-            self.enemy.rect.x += self.orchspeed 
-            self.enemy.animate_right()
-        if self.player.rect.x < self.caster.rect.x:
-            self.caster.animate_left()
-        if self.player.rect.x > self.caster.rect.x:
-            self.caster.animate_right()
         if Wraithxdifference != 0 and Wraithydifference != 0:
             self.wraithhspeed = (Wraithxdifference / Wraithxdifference * 2.5)
             self.wraithvspeed = (Wraithydifference / Wraithydifference * 2.5)
+            if Wraithxdifference > 800:
+                self.wraithhspeed = 0
         else:
             self.wraithhspeed = 0
             self.wraithvspeed = 0
@@ -122,9 +135,9 @@ class Game:
         if self.hit == False:
             hit_list = pygame.sprite.spritecollide(self.player, self.enemy_list, False)
             for enemy in hit_list:
-                if self.enemy.hit == False:
+                if enemy.hit == False:
                     self.player.health -= 1
-                    self.enemy.hit = False
+                    enemy.hit = False
                     self.player.pos.x += 50
                     self.hit = True
                     pygame.time.set_timer(pygame.USEREVENT + 3, 2000)
@@ -143,10 +156,14 @@ class Game:
                 plat.rect.x -= abs(self.player.vel.x)   
             for e in self.enemy_list:
                 e.rect.x -= abs(self.player.vel.x)
+            for e in self.enemy_fireballs:
+                e.rect.centerx -= abs(self.player.vel.x)
         if self.player.rect.left <= Width / 4:
             self.player.pos.x += abs(self.player.vel.x) 
             for plat in self.platforms:
                 plat.rect.x += abs(self.player.vel.x)
+            for e in self.enemy_fireballs:
+                e.rect.centerx += abs(self.player.vel.x)
             for e in self.enemy_list:
                 e.rect.x += abs(self.player.vel.x)
     
@@ -177,6 +194,7 @@ class Game:
         #self.screen.fill(Blue)
         #Draws the all_sprites group
         self.enemy_list.draw(self.screen)
+        self.orc_list.draw(self.screen)
         self.fireballs.draw(self.screen)
         self.enemy_fireballs.draw(self.screen)
         #pygame.draw.rect(self.screen, Red, self.player.rect)
@@ -187,11 +205,76 @@ class Game:
         #The display flip is always last in the game loop.
         pygame.display.flip()
 
-    def show_start_screen(self): #Game Start Screen
-        self.draw_text('Marlin the Mage',48,White,Width / 2,Height /4)
+    def text_objects(self,text,font,colour=Black):
+        text_surface = font.render(text, True, colour)
+        return text_surface, text_surface.get_rect()
+    
+    def button(self,text, x, y, w, h, click, inactive_colour=Blue, active_colour=Light_Blue, text_colour=White):
+        mouse = pygame.mouse.get_pos()
+        # focus = pygame.mouse.get_focused()
+        return_value = False
+        if x < mouse[0] < x + w and y < mouse[1] < y + h:  # if mouse is hovering the button
+            pygame.draw.rect(self.screen, active_colour, (x, y, w, h))
+            if click and pygame.time.get_ticks() > 100: 
+                return_value = True
+        else: 
+            pygame.draw.rect(self.screen, inactive_colour, (x, y, w, h))
+
+        text_surf, text_rect = self.text_objects(text, SMALL_TEXT, colour=text_colour)
+        text_rect.center = (int(x + w / 2), int(y + h / 2))
+        self.screen.blit(text_surf, text_rect)
+        return return_value
+
+    def show_start_screen_setup(self): #Game Start Screen
+        self.screen.fill(White)
+        text_surf, text_rect = self.text_objects('Marlin the Mage',MENU_TEXT)
+        text_rect.center = (int(Width / 2), int(Height / 4))
+        self.screen.blit(text_surf, text_rect)
+        text_surf, text_rect = self.text_objects(f'v{VERSION}', SMALL_TEXT)
+        text_rect.center = (int(Width * 0.98), int(Height * 0.98))
+        self.screen.blit(text_surf, text_rect)
+        text_surf, text_rect = self.text_objects('Created by Luke Nisbett', LARGE_TEXT)
+        text_rect.center = (int(Width / 2), int(Height * 0.84))
+        self.screen.blit(text_surf, text_rect)
+        pygame.display.update()
+
+    def show_start_screen(self):
+        self.show_start_screen_setup()
+        game_begin = view_hs = False
+        while True:
+            click = False
+            pressed_keys = pygame.key.get_pressed()
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    self.new
+                elif event.type == pygame.KEYDOWN and (event.key == pygame.K_v or event.key == pygame.K_h): 
+                    view_hs = True
+                elif event.type == pygame.MOUSEBUTTONDOWN: 
+                    click = True
+            if self.button('S T A R T  G A M E', *button_layout_4[0], click): 
+                game_begin = True
+            elif self.button('V I E W  T I M E S', *button_layout_4[1], click) or view_hs:
+                view_high_scores()
+                view_hs = False
+                self.show_start_screen_setup
+            elif self.button('S E T T I N G S', *button_layout_4[2], click):
+                settings_menu()
+                self.show_start_screen_setup
+            elif self.button('Q U I T  G A M E', *button_layout_4[3], click): sys.exit()
+            if game_begin:
+                while game_begin: 
+                    game_begin = self.new() == 'Restart'
+                self.show_start_screen_setup
+            pygame.display.update(button_layout_4)
+            self.Clock.tick(60)
+
+
+        '''self.draw_text('Marlin the Mage',48,White,Width / 2,Height /4)
         self.draw_text('Press Space to Play',24,White,Width/2,Height - Height/4)
         pygame.display.flip()
-        self.wait_for_key()
+        self.wait_for_key()'''
 
 
         '''menu = pygame_menu.Menu(300,400,'Marlin the Mage', theme=pygame_menu.themes.THEME_BLUE)
@@ -216,12 +299,14 @@ class Game:
                     if event.key == pygame.K_SPACE:
                         waiting = False
 
-    def draw_text(self, text, size, color, x, y):
+
+
+    '''def draw_text(self, text, size, color, x, y):
         font = pygame.font.Font(self.font_name, size)
         text_surface = font.render(text, True, color)
         text_rect = text_surface.get_rect()
         text_rect.midtop = (x, y)
-        self.screen.blit(text_surface, text_rect)
+        self.screen.blit(text_surface, text_rect)'''
 
 MtM = Game()
 MtM.show_start_screen()

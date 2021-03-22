@@ -1,4 +1,6 @@
+import pygame
 #Sets the width and the height for the game display.
+pygame.font.init()
 Width = 1024
 Height = 768
 #Sets game speed.
@@ -10,8 +12,23 @@ Red = (255,0,0)
 Green = (0,255,0)
 Blue = (0,0,255)
 ALPHA = (0,255,0)
-
-Platform_list = [(0,Height - 40,5000,40),(Width / 2-50,520,100,20),(800,200,100,20)]
-
+Light_Blue = (0,191,255)
+VERSION = '1.17'
+FONT_BOLD = pygame.font.match_font('OpenSans-SemiBold')
+FONT_REG = pygame.font.match_font('OpenSans-Regular')
+FONT_LIGHT = pygame.font.match_font('OpenSans-Light')
+MENU_TEXT = pygame.font.Font(FONT_LIGHT, int(110 / 1080 * Height))
+LARGE_TEXT = pygame.font.Font(FONT_REG, int(40 / 1080 * Height))
+MEDIUM_TEXT = pygame.font.Font(FONT_LIGHT, int(35 / 1440 * Height))
+SMALL_TEXT = pygame.font.Font(FONT_BOLD, int(25 / 1440 * Height))
+HUD_TEXT = pygame.font.Font(FONT_REG, int(40 / 1440 * Height))
+Platform_list = [(0,Height - 40,5000,40,Black),(Width / 2-50,520,100,20,Black)]
+BUTTON_WIDTH = int(Width * 0.625 // 3)
+BUTTON_HEIGHT = int(Height * 5 // 81)
+button_x_start = (Width - BUTTON_WIDTH) // 2
+button_layout_4 = [(button_x_start, Height * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, Height * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, Height * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, Height * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
 PLAYER_ACC = 1
 PLAYER_FRICTION = -0.12

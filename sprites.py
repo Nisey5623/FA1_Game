@@ -91,8 +91,6 @@ class Mage(pygame.sprite.Sprite):
                 self.rect = self.image.get_rect()
                 self.rect.bottom = bottom
         self.mask = pygame.mask.from_surface(self.image)
-        
-
 class Ability(pygame.sprite.Sprite):
     def __init__(self,x,y,tx,ty):
         pygame.sprite.Sprite.__init__(self)
@@ -130,10 +128,10 @@ class Ability(pygame.sprite.Sprite):
         return rot_image, rot_rect
 
 class platform(pygame.sprite.Sprite):
-    def __init__(self, x, y, w, h):
+    def __init__(self, x, y, w, h,color):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((w,h))
-        self.image.fill(Black)
+        self.image.fill(color)
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
@@ -198,6 +196,7 @@ class Caster(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.hit = False
 
     
     def load_images(self):
@@ -224,8 +223,6 @@ class Caster(pygame.sprite.Sprite):
             self.current_frame = (self.current_frame + 1) % len(self.casting_frames_l)
             self.image = self.casting_frames_l[self.current_frame]
         self.mask = pygame.mask.from_surface(self.image)        
-
-
 class Wraith(pygame.sprite.Sprite):
     def __init__(self,game,x,y):
         pygame.sprite.Sprite.__init__(self)
