@@ -20,6 +20,8 @@ class Game:
         self.running = True
         self.shooting = True
         self.filename = 'times.txt'
+        self.enemies = 0
+        self.game_delay = True
         
         
 
@@ -31,23 +33,29 @@ class Game:
         self.enemy_fireballs = pygame.sprite.Group()
         self.enemy_list = pygame.sprite.Group()
         self.orc_list = pygame.sprite.Group()
+        self.wraith_list = pygame.sprite.Group()
         self.caster_list = pygame.sprite.Group()
         pygame.mixer.music.load('Temple Run (iOS) Music- Running Music (128 kbps).mp3')
         #Places the player in the scentre of the screen and adds player to all_sprites group
         self.player = Mage(self)
         enemy_number = random.randint(1,3)
+        wraith_number = random.randint(1,3)
         caster_number = random.randint(0,2)
         for i in range(0,enemy_number):
             self.orc_list.add(Orc(self,random.randint(100,1024),668))
-        self.wraith = Wraith(self,300,300)
+            self.enemies += 1
+        for i in range(0,wraith_number):
+            self.wraith_list.add(Wraith(self,random.randint(100,2000),random.randint(200,668)))
+            self.enemies += 1
         for i in range(0,caster_number):
             self.caster_list.add(Caster(self,random.randint(500,2000),random.randint(150,590)))
+            self.enemies += 1
         for c in self.caster_list:
             self.platforms.add(platform(c.rect.x, c.rect.y+50,100,20,White))
             self.all_sprites.add(self.platforms)
         self.enemy_list.add(self.orc_list)
         self.enemy_list.add(self.caster_list)
-        self.enemy_list.add(self.wraith)
+        self.enemy_list.add(self.wraith_list)
         self.all_sprites.add(self.player)
         self.wraithupdate = True
         self.hit = False
@@ -79,49 +87,50 @@ class Game:
         self.orc_list.update()
         self.fireballs.update()
         self.enemy_fireballs.update()
-        for i in self.orc_list:
-            self.Orcxdifference = self.player.rect.x - i.rect.x
-            if self.Orcxdifference != 0:
-                self.orchspeed = (self.Orcxdifference / self.Orcxdifference * random.randint(1,5))
-                if self.Orcxdifference > 800:
+        if self.game_timer > 3:
+            for i in self.orc_list:
+                self.Orcxdifference = self.player.rect.x - i.rect.x
+                if self.Orcxdifference != 0:
+                    self.orchspeed = (self.Orcxdifference / self.Orcxdifference * random.randint(1,5))
+                    if self.Orcxdifference > 800:
+                        self.orchspeed = 0
+                else:
                     self.orchspeed = 0
-            else:
-                self.orchspeed = 0
-            if self.player.rect.x < i.rect.x:
-                i.rect.x -= self.orchspeed
-                i.animate_left()
-            if self.player.rect.x > i.rect.x:
-                i.rect.x += self.orchspeed 
-                i.animate_right()
-        for c in self.caster_list:
-            if c.current_frame == 17:
-                enemy_fire = Ability(c.rect.x,c.rect.y,self.player.rect.x,self.player.rect.y)
-                self.enemy_fireballs.add(enemy_fire)
-            if self.player.rect.x < c.rect.x:
-                c.animate_left()
-            if self.player.rect.x > c.rect.x:
-                c.animate_right()
-        Wraithxdifference = self.player.rect.x - self.wraith.rect.x
-        Wraithydifference = self.player.rect.x - self.wraith.rect.x
-        if Wraithxdifference != 0 and Wraithydifference != 0:
-            self.wraithhspeed = (Wraithxdifference / Wraithxdifference * 2.5)
-            self.wraithvspeed = (Wraithydifference / Wraithydifference * 2.5)
-            if Wraithxdifference > 800:
-                self.wraithhspeed = 0
-        else:
-            self.wraithhspeed = 0
-            self.wraithvspeed = 0
-        if self.player.rect.x < self.wraith.rect.x:
-            self.wraith.rect.x -= self.wraithhspeed
-            self.wraith.animate_left()
-        if self.player.rect.x > self.wraith.rect.x:
-            self.wraith.rect.x += self.wraithhspeed 
-            self.wraith.animate_right()          
-        if self.player.rect.y < self.wraith.rect.y:
-            self.wraith.rect.y -= self.wraithvspeed
-        if self.player.rect.y > self.wraith.rect.y:
-            self.wraith.rect.y += self.wraithvspeed 
-
+                if self.player.rect.x < i.rect.x:
+                    i.rect.x -= self.orchspeed
+                    i.animate_left()
+                if self.player.rect.x > i.rect.x:
+                    i.rect.x += self.orchspeed 
+                    i.animate_right()
+            for w in self.wraith_list:
+                Wraithxdifference = self.player.rect.x - w.rect.x
+                Wraithydifference = self.player.rect.y - w.rect.y
+                if Wraithxdifference != 0 and Wraithydifference != 0:
+                    self.wraithhspeed = (Wraithxdifference / Wraithxdifference * 2.5)
+                    self.wraithvspeed = (Wraithydifference / Wraithydifference * 2.5)
+                    if Wraithxdifference > 800:
+                        self.wraithhspeed = 0
+                else:
+                    self.wraithhspeed = 0
+                    self.wraithvspeed = 0
+                if self.player.rect.x < w.rect.x:
+                    w.rect.x -= self.wraithhspeed
+                    w.animate_left()
+                if self.player.rect.x > w.rect.x:
+                    w.rect.x += self.wraithhspeed 
+                    w.animate_right()  
+                if self.player.rect.y < w.rect.y:
+                    w.rect.y -= self.wraithvspeed
+                if self.player.rect.y > w.rect.y:
+                    w.rect.y += self.wraithvspeed 
+            for c in self.caster_list:
+                if c.current_frame == 17:
+                    enemy_fire = Ability(c.rect.x,c.rect.y,self.player.rect.x,self.player.rect.y)
+                    self.enemy_fireballs.add(enemy_fire)
+                if self.player.rect.x < c.rect.x:
+                    c.animate_left()
+                if self.player.rect.x > c.rect.x:
+                    c.animate_right()        
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed() == (1,0,0):
             if self.shooting:
@@ -153,10 +162,11 @@ class Game:
                     self.screen.blit(self.hit_timer,(self.player.pos.x,self.player.pos.y + 100))
         fire_enemy_hit = pygame.sprite.groupcollide(self.enemy_list,self.fireballs, True, True)
         for i in fire_enemy_hit:
+            self.enemies -= 1
+        fire_plat_hit = pygame.sprite.groupcollide(self.fireballs,self.platforms, True, False)
+        if self.enemies == 0:
             self.times_add()
             self.win_screen()
-        fire_plat_hit = pygame.sprite.groupcollide(self.fireballs,self.platforms, True, False)
-        
         
         #Check for scrolling
         if self.player.rect.right >= (Width - (Width / 4)):
@@ -186,10 +196,10 @@ class Game:
             if event.type == pygame.USEREVENT + 1:
                 self.shooting = True
                 pygame.time.set_timer(pygame.USEREVENT + 1,0)
-            if event.type == pygame.USEREVENT + 3:
+            elif event.type == pygame.USEREVENT + 3:
                 self.hit = False
                 pygame.time.set_timer(pygame.USEREVENT + 3, 0)
-            if event.type == pygame.KEYDOWN:
+            elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.player.jump()
                 elif event.key == pygame.K_ESCAPE:
@@ -211,18 +221,27 @@ class Game:
         return
 
     def times_add(self):
-        with open(self.filename,'a') as times:
+        with open(self.filename,'a') as times: 
             times.write("Your game time : " + str(self.game_timer) + '\n')
 
     def times_read(self):
+        reading = True
         with open(self.filename) as r:
             filecontents = r.read()
         print(filecontents)
+        self.screen.fill(White)
+        text_surf, text_rect = self.text_objects(filecontents,MEDIUM_TEXT, colour=Black)
+        text_rect.center = (int(Width / 2), int(Height / 4))
+        self.screen.blit(text_surf, text_rect)
+        while reading:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                    pygame.quit()
+            pygame.display.update()
+            self.Clock.tick(FPS)
+        return
 
-    def text_objects(self,text,font,colour=Black):
-        text_surface = font.render(text, True, colour)
-        return text_surface, text_surface.get_rect()
-    
     def button(self,text, x, y, w, h, click, inactive_colour=Blue, active_colour=Light_Blue, text_colour=White):
         mouse = pygame.mouse.get_pos()
         return_value = False
@@ -233,14 +252,16 @@ class Game:
         else:
             pygame.draw.rect(self.screen, inactive_colour, (x, y, w, h))
 
-        text_surf, text_rect = self.text_objects(text, SMALL_TEXT, colour=text_colour)
+        text_surf = SMALL_TEXT.render(text,True,text_colour)
+        text_rect = text_surf.get_rect()
         text_rect.center = (int(x + w / 2), int(y + h / 2))
         self.screen.blit(text_surf, text_rect)
         return return_value
 
     def win_screen_setup(self):
         self.screen.fill(Black)
-        text_surf, text_rect = self.text_objects('Victory',MENU_TEXT, colour=Gold)
+        text_surf = MENU_TEXT.render('Victory',True,Gold)
+        text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 3))
         self.screen.blit(text_surf, text_rect)
         pygame.display.update()
@@ -259,8 +280,10 @@ class Game:
                     click = True
             if self.button('V I E W  T I M E S', *button_layout_4[0], click): 
                 self.times_read()
+                won = False
             elif self.button('M A I N  M E N U', *button_layout_4[1], click): 
                 self.show_start_screen()
+                won = False
             elif self.button('S E T T I N G S', *button_layout_4[2], click):
                 settings_menu()
                 self.win_screen_setup()
@@ -273,7 +296,8 @@ class Game:
 
     def game_over_screen_setup(self):
         self.screen.fill(Black)
-        text_surf, text_rect = self.text_objects('Game Over',MENU_TEXT, colour=Red)
+        text_surf = MENU_TEXT.render('Game Over',True,Red)
+        text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 4))
         self.screen.blit(text_surf, text_rect)
         pygame.display.update()
@@ -307,13 +331,16 @@ class Game:
 
     def show_start_screen_setup(self): #Game Start Screen
         self.screen.fill(White)
-        text_surf, text_rect = self.text_objects('Marlin the Mage',MENU_TEXT)
+        text_surf = MENU_TEXT.render('Marlin the Mage',True,Black)
+        text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 4))
         self.screen.blit(text_surf, text_rect)
-        text_surf, text_rect = self.text_objects(f'v{1.0}', SMALL_TEXT)
+        text_surf = SMALL_TEXT.render(f'v{1.0}',True,Black)
+        text_rect = text_surf.get_rect()
         text_rect.center = (int(Width - Width * 0.98), int(Height - Height * 0.98))
         self.screen.blit(text_surf, text_rect)
-        text_surf, text_rect = self.text_objects('Created by Luke Nisbett', LARGE_TEXT)
+        text_surf = LARGE_TEXT.render('Created by Luke Nisbett',True,Black)
+        text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height * 0.84))
         self.screen.blit(text_surf, text_rect)
         pygame.display.update()
@@ -321,8 +348,9 @@ class Game:
 
     def show_start_screen(self):
         self.show_start_screen_setup()
-        game_begin = view_hs = False
-        while True:
+        game_begin = False
+        scores = False
+        while scores == False:
             click = False
             pressed_keys = pygame.key.get_pressed()
             for event in pygame.event.get():
@@ -331,15 +359,14 @@ class Game:
                     pygame.quit()
                 elif event.type == pygame.KEYDOWN: 
                     if event.key == pygame.K_SPACE:
-                        self.new
-                elif event.type == pygame.KEYDOWN and (event.key == pygame.K_v or event.key == pygame.K_h): 
-                    view_hs = True
+                        game_begin = True
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
             if self.button('S T A R T  G A M E', *button_layout_4[0], click): 
                 game_begin = True
-            elif self.button('V I E W  T I M E S', *button_layout_4[1], click) or view_hs:
+            elif self.button('V I E W  T I M E S', *button_layout_4[1], click):
                 self.times_read()
+                scores = True
             elif self.button('S E T T I N G S', *button_layout_4[2], click):
                 settings_menu()
                 self.show_start_screen_setup
@@ -348,7 +375,7 @@ class Game:
                 pygame.quit()
             if game_begin:
                 while game_begin: 
-                    game_begin = self.new() == 'Restart'
+                    game_begin = self.new()
                 self.show_start_screen_setup
             pygame.display.update(button_layout_4)
             self.Clock.tick(60)
@@ -357,7 +384,8 @@ class Game:
     def pause_menu_setup(self,background):
         self.screen.blit(background, (0, 0))
         background = self.screen.copy()
-        text_surf, text_rect = self.text_objects('Paused', MENU_TEXT, colour=White)
+        text_surf = MENU_TEXT.render('Paused',True,White)
+        text_rect = text_surf.get_rect()
         text_rect.center = ((Width // 2), (Height // 4))
         self.screen.blit(text_surf, text_rect)
         pygame.display.update()
