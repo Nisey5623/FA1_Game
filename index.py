@@ -1,9 +1,9 @@
 import pygame
-import pygame_menu
 import random
 import os,sys
 from Settings import *
 from sprites import *
+import ptext
 class Game:
     def __init__(self): #Initialize game window
         #These three lines initialize the game, sound and font for the game.
@@ -37,7 +37,7 @@ class Game:
         self.caster_list = pygame.sprite.Group()
         pygame.mixer.music.load('Temple Run (iOS) Music- Running Music (128 kbps).mp3')
         #Places the player in the scentre of the screen and adds player to all_sprites group
-        self.player = Mage(self)
+        self.player = Mage(self,Width/2,Height/2)
         enemy_number = random.randint(1,3)
         wraith_number = random.randint(1,3)
         caster_number = random.randint(0,2)
@@ -45,10 +45,10 @@ class Game:
             self.orc_list.add(Orc(self,random.randint(100,1024),668))
             self.enemies += 1
         for i in range(0,wraith_number):
-            self.wraith_list.add(Wraith(self,random.randint(100,2000),random.randint(200,668)))
+            self.wraith_list.add(Wraith(self,random.randint(100,2000),random.randint(200,400)))
             self.enemies += 1
         for i in range(0,caster_number):
-            self.caster_list.add(Caster(self,random.randint(500,2000),random.randint(150,590)))
+            self.caster_list.add(Caster(self,random.randint(500,2000),random.randint(150,400)))
             self.enemies += 1
         for c in self.caster_list:
             self.platforms.add(platform(c.rect.x, c.rect.y+50,100,20,White))
@@ -64,8 +64,11 @@ class Game:
             p = platform(*plat)
             self.all_sprites.add(p)
             self.platforms.add(p)
+        self.game_seconds = 0
+        self.game_minutes = 0 
+        self.counts = 0
         #Runs the game loop from below
-        self.run()
+        self.run()    
         return
 
     def run(self): #Game Loop
@@ -81,18 +84,26 @@ class Game:
         return
     
     def update(self): #Game Loop - Update
-        self.game_timer = int(pygame.time.get_ticks()/1000)
+        #self.game_timer = int(pygame.time.get_ticks()/1000)
+        self.total_seconds = self.counts // FPS
+        self.game_minutes = self.total_seconds // 60
+        self.game_seconds = self.total_seconds % 60
+        self.counts += 1
+        if self.game_minutes > 5:
+            self.player.kill()
+            self.enemy_list.kill()
+            self.game_over_screen()
         self.all_sprites.update()
         self.enemy_list.update()
         self.orc_list.update()
         self.fireballs.update()
         self.enemy_fireballs.update()
-        if self.game_timer > 3:
+        if self.game_seconds > 3:
             for i in self.orc_list:
                 self.Orcxdifference = self.player.rect.x - i.rect.x
                 if self.Orcxdifference != 0:
                     self.orchspeed = (self.Orcxdifference / self.Orcxdifference * random.randint(1,5))
-                    if self.Orcxdifference > 800:
+                    if self.Orcxdifference > 700:
                         self.orchspeed = 0
                 else:
                     self.orchspeed = 0
@@ -106,9 +117,9 @@ class Game:
                 Wraithxdifference = self.player.rect.x - w.rect.x
                 Wraithydifference = self.player.rect.y - w.rect.y
                 if Wraithxdifference != 0 and Wraithydifference != 0:
-                    self.wraithhspeed = (Wraithxdifference / Wraithxdifference * 2.5)
-                    self.wraithvspeed = (Wraithydifference / Wraithydifference * 2.5)
-                    if Wraithxdifference > 800:
+                    self.wraithhspeed = (Wraithxdifference / Wraithxdifference * random.randint(2,4))
+                    self.wraithvspeed = (Wraithydifference / Wraithydifference * random.randint(2,4))
+                    if Wraithxdifference > 700:
                         self.wraithhspeed = 0
                 else:
                     self.wraithhspeed = 0
@@ -116,17 +127,18 @@ class Game:
                 if self.player.rect.x < w.rect.x:
                     w.rect.x -= self.wraithhspeed
                     w.animate_left()
-                if self.player.rect.x > w.rect.x:
+                elif self.player.rect.x > w.rect.x:
                     w.rect.x += self.wraithhspeed 
                     w.animate_right()  
                 if self.player.rect.y < w.rect.y:
                     w.rect.y -= self.wraithvspeed
-                if self.player.rect.y > w.rect.y:
+                elif self.player.rect.y > w.rect.y:
                     w.rect.y += self.wraithvspeed 
             for c in self.caster_list:
                 if c.current_frame == 17:
                     enemy_fire = Ability(c.rect.x,c.rect.y,self.player.rect.x,self.player.rect.y)
                     self.enemy_fireballs.add(enemy_fire)
+                    self.enemy_list.add(self.enemy_fireballs)
                 if self.player.rect.x < c.rect.x:
                     c.animate_left()
                 if self.player.rect.x > c.rect.x:
@@ -154,6 +166,7 @@ class Game:
                     self.hit = True
                     if self.player.health == 0:
                         self.player.kill()
+                        self.enemy_list.kill()
                         self.game_over_screen()
                     pygame.time.set_timer(pygame.USEREVENT + 3, 2000)
                     timer = 2000 - int(pygame.time.get_ticks()/1000)
@@ -167,6 +180,8 @@ class Game:
         if self.enemies == 0:
             self.times_add()
             self.win_screen()
+            self.player.kill()
+            self.enemy_list.kill()
         
         #Check for scrolling
         if self.player.rect.right >= (Width - (Width / 4)):
@@ -222,17 +237,27 @@ class Game:
 
     def times_add(self):
         with open(self.filename,'a') as times: 
-            times.write("Your game time : " + str(self.game_timer) + '\n')
+            times.write("Your game time - " + str(self.game_minutes) + ":" + str(self.game_seconds) + '\n')
+
+    def times_table(self):
+        self.scores = pygame.draw.rect(self.screen,Black,((Width/2)-150,(Height/2)-150,300,300),3)
+        self.game_timer = str(self.game_timer)
+        scores_surf = SMALL_TEXT.render(self.game_timer,True,Black)
+        scores_rect = scores_surf.get_rect()
+        scores_rect.center = (int(Width / 2), int(Height / 3))
 
     def times_read(self):
         reading = True
         with open(self.filename) as r:
             filecontents = r.read()
-        print(filecontents)
+        str(filecontents) #Luke for times add a box with 10 of the lowest times that the game has been completed. Also change the goal of the game to unlock a door when all enemies are dead
         self.screen.fill(White)
-        text_surf, text_rect = self.text_objects(filecontents,MEDIUM_TEXT, colour=Black)
+        #self.times_table()        
+        '''text_surf = MEDIUM_TEXT.render(filecontents,True,Black)
+        text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 4))
-        self.screen.blit(text_surf, text_rect)
+        self.screen.blit(text_surf, text_rect)'''
+        ptext.draw(filecontents, (400,400), color=Blue)
         while reading:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -242,7 +267,7 @@ class Game:
             self.Clock.tick(FPS)
         return
 
-    def button(self,text, x, y, w, h, click, inactive_colour=Blue, active_colour=Light_Blue, text_colour=White):
+    def button(self,text, x, y, w, h, click, inactive_colour=Inactive_Menu_Red, active_colour=Menu_Red, text_colour=White):
         mouse = pygame.mouse.get_pos()
         return_value = False
         if x < mouse[0] < x + w and y < mouse[1] < y + h:
@@ -258,11 +283,64 @@ class Game:
         self.screen.blit(text_surf, text_rect)
         return return_value
 
+    def level_selector_screen_setup(self):
+        self.screen.fill(White)
+        text_surf = MENU_TEXT.render('Levels',True,Black)
+        text_rect = text_surf.get_rect()
+        text_rect.center = (int(Width / 2), int(Height / 4))
+        self.screen.blit(text_surf, text_rect)
+        pygame.display.update()
+        return
+
+    def level_selector_screen(self):
+        self.level_selector_screen_setup()
+        select = False
+        while select == False:
+            click = False
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    sys.exit()
+                    pygame.quit()
+                elif event.type == pygame.MOUSEBUTTONDOWN: 
+                    click = True
+            if self.button('T U T O R I A L', *button_layout_levels[0], click): 
+                self.new()
+                select = True
+            elif self.button('L E V E L  4', *button_layout_levels[1], click): 
+                self.new()
+                select = True
+            elif self.button('L E V E L  1', *button_layout_levels[2], click): 
+                self.new()
+                select = True
+            elif self.button('L E V E L  5', *button_layout_levels[3], click): 
+                self.new()
+                select = True
+            elif self.button('L E V E L  2', *button_layout_levels[4], click): 
+                self.new()
+                select = True
+            elif self.button('L E V E L  6', *button_layout_levels[5], click): 
+                self.new()
+                select = True
+            elif self.button('L E V E L  3', *button_layout_levels[6], click): 
+                self.new()
+                select = True
+            elif self.button('L E V E L  7', *button_layout_levels[7], click): 
+                self.new()
+                select = True
+            elif self.button('M A I N  M E N U', *button_layout_levels[8], click): 
+                self.show_start_screen()
+            elif self.button('Q U I T  G A M E', *button_layout_levels[9], click): 
+                sys.exit()
+                pygame.quit()
+            pygame.display.update(button_layout_levels)
+            self.Clock.tick(60)
+        return
+
     def win_screen_setup(self):
-        self.screen.fill(Black)
+        self.screen.fill(White)
         text_surf = MENU_TEXT.render('Victory',True,Gold)
         text_rect = text_surf.get_rect()
-        text_rect.center = (int(Width / 2), int(Height / 3))
+        text_rect.center = (int(Width / 2), int(Height / 4))
         self.screen.blit(text_surf, text_rect)
         pygame.display.update()
         return
@@ -278,7 +356,7 @@ class Game:
                     pygame.quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
-            if self.button('V I E W  T I M E S', *button_layout_4[0], click): 
+            if self.button('T I M E S', *button_layout_4[0], click): 
                 self.times_read()
                 won = False
             elif self.button('M A I N  M E N U', *button_layout_4[1], click): 
@@ -314,7 +392,7 @@ class Game:
                     pygame.quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
-            if self.button('V I E W  T I M E S', *button_layout_4[0], click): 
+            if self.button('T I M E S', *button_layout_4[0], click): 
                 self.times_read()
             elif self.button('M A I N  M E N U', *button_layout_4[1], click): 
                 self.show_start_screen()
@@ -325,7 +403,6 @@ class Game:
                 sys.exit()
                 pygame.quit()
             pygame.display.update(button_layout_4)
-            pygame.display.update(button_layout_4)
             self.Clock.tick(60)
         return
 
@@ -335,10 +412,6 @@ class Game:
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 4))
         self.screen.blit(text_surf, text_rect)
-        text_surf = SMALL_TEXT.render(f'v{1.0}',True,Black)
-        text_rect = text_surf.get_rect()
-        text_rect.center = (int(Width - Width * 0.98), int(Height - Height * 0.98))
-        self.screen.blit(text_surf, text_rect)
         text_surf = LARGE_TEXT.render('Created by Luke Nisbett',True,Black)
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height * 0.84))
@@ -347,10 +420,14 @@ class Game:
         return
 
     def show_start_screen(self):
+        Idler = Idle_Menu(Width/2-25,Height-Height/4-40)
         self.show_start_screen_setup()
         game_begin = False
         scores = False
         while scores == False:
+            sprite = pygame.sprite.Group()
+            sprite.add(Idler)
+            sprite.draw(self.screen)
             click = False
             pressed_keys = pygame.key.get_pressed()
             for event in pygame.event.get():
@@ -362,23 +439,27 @@ class Game:
                         game_begin = True
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
-            if self.button('S T A R T  G A M E', *button_layout_4[0], click): 
+            if self.button('S T A R T  G A M E', *button_layout_main[0], click): 
                 game_begin = True
-            elif self.button('V I E W  T I M E S', *button_layout_4[1], click):
+            elif self.button('T I M E S', *button_layout_main[1], click): #⏱
                 self.times_read()
-                scores = True
-            elif self.button('S E T T I N G S', *button_layout_4[2], click):
+                scores = True 
+            elif self.button('L I V E S', *button_layout_main[2], click): #❤
+                print(self.player.health)
+            elif self.button('S E T T I N G S', *button_layout_main[3], click):
                 settings_menu()
                 self.show_start_screen_setup
-            elif self.button('Q U I T  G A M E', *button_layout_4[3], click): 
+            elif self.button('Q U I T  G A M E', *button_layout_main[4], click): 
                 sys.exit()
                 pygame.quit()
             if game_begin:
                 while game_begin: 
-                    game_begin = self.new()
+                    game_begin = self.level_selector_screen()
+                    Idler.kill()
                 self.show_start_screen_setup
-            pygame.display.update(button_layout_4)
+            pygame.display.update(button_layout_main)
             self.Clock.tick(60)
+            pygame.display.flip()
         return
 
     def pause_menu_setup(self,background):

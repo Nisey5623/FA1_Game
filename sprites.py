@@ -7,9 +7,9 @@ from Settings import *
 vec = pygame.math.Vector2
 
 class Mage(pygame.sprite.Sprite):
-    def __init__(self,game):
+    def __init__(self,game,x,y):
         pygame.sprite.Sprite.__init__(self)
-        self.health = 1
+        self.health = 3
         self.game = game
         self.walking = False
         self.jumping = True
@@ -18,7 +18,8 @@ class Mage(pygame.sprite.Sprite):
         self.load_images()
         self.image = self.standing_frames[0]
         self.rect = self.image.get_rect()
-        self.rect.center = (Width / 2, Height / 2)
+        self.rect.x = x
+        self.rect.y = y
         self.pos = vec(Width / 2, Height / 2)
         self.vel = vec(0,0)
         self.acc = vec(0,0)    
@@ -102,6 +103,7 @@ class Ability(pygame.sprite.Sprite):
         self.rect.centery = y
         self.x_wall = Width
         self.y_wall = Height
+        self.hit = False
         xdifference = tx - self.rect.centerx
         ydifference = ty - self.rect.centery
         hyp = math.hypot(xdifference,ydifference)
@@ -251,3 +253,18 @@ class Wraith(pygame.sprite.Sprite):
             self.current_frame = (self.current_frame + 1) % len(self.flying_frames_l)
             self.image = self.flying_frames_l[self.current_frame]
         self.mask = pygame.mask.from_surface(self.image)
+
+class Shield(pygame.sprite.Sprite):
+    def __init__(self,game,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load('power_up_shield.png')
+        self.rect = self.image.get_rect()
+        self.applied = False
+
+class Idle_Menu(pygame.sprite.Sprite):
+    def __init__(self,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.image.load("Mage/Idle_Edit/idle2.png")
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y  

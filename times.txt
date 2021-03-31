@@ -1,8 +1,6 @@
-Your game time : 3
-Your game time : 4
-Your game time : 14
-Your game time : 17
-Your game time : 8
-Your game time : 7
-Your game time : 16
-Your game time : 10
+Your game time - 0:7
+Your game time - 0:10
+Your game time - 0:15
+Your game time - 0:8
+Your game time - 0:7
+Your game time - 0:13
