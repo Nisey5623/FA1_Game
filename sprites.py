@@ -93,10 +93,9 @@ class Mage(pygame.sprite.Sprite):
                 self.rect.bottom = bottom
         self.mask = pygame.mask.from_surface(self.image)
 class Ability(pygame.sprite.Sprite):
-    def __init__(self,x,y,tx,ty):
+    def __init__(self,x,y,tx,ty,speed):
         pygame.sprite.Sprite.__init__(self)
-        self.load_images()
-        self.image = self.air_frames[0]
+        self.image = pygame.image.load("Mage/Fire_Extra_Update/fire_extra1.png")
         self.image.convert_alpha()
         self.rect = self.image.get_rect()
         self.rect.centerx = x
@@ -107,8 +106,8 @@ class Ability(pygame.sprite.Sprite):
         xdifference = tx - self.rect.centerx
         ydifference = ty - self.rect.centery
         hyp = math.hypot(xdifference,ydifference)
-        self.hspeed = xdifference / hyp * 7
-        self.vspeed = ydifference / hyp * 7
+        self.hspeed = xdifference / hyp * speed
+        self.vspeed = ydifference / hyp * speed
         angle = (180 / math.pi) * math.atan2(xdifference,ydifference) - 90
         self.image,self.rect = self.rot_center(self.image,self.rect,angle)
 
@@ -121,13 +120,11 @@ class Ability(pygame.sprite.Sprite):
             self.kill()
         return
 
-    def load_images(self):
-        self.air_frames = [pygame.image.load("Mage/Fire_Extra_Update/fire_extra1.png"), pygame.image.load("Mage/Fire_Extra_Update/fire_extra2.png"), pygame.image.load("Mage/Fire_Extra_Update/fire_extra3.png")]
-
     def rot_center(self, image, rect, angle):
         rot_image = pygame.transform.rotate(image, angle)
         rot_rect = rot_image.get_rect(center=rect.center)
         return rot_image, rot_rect
+
 class platform(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h,color):
         pygame.sprite.Sprite.__init__(self)

@@ -24,7 +24,6 @@ LARGE_TEXT = pygame.font.Font(FONT_REG, int(60 / 1080 * Height))
 MEDIUM_TEXT = pygame.font.Font(FONT_LIGHT, int(50 / 1440 * Height))
 SMALL_TEXT = pygame.font.Font(FONT_BOLD, int(45 / 1440 * Height))
 HUD_TEXT = pygame.font.Font(FONT_REG, int(40 / 1440 * Height))
-Platform_list = [(0,Height - 40,5000,40,Black),(Width / 2-50,520,100,20,Black)]
 BUTTON_WIDTH = int(Width * 0.625 // 3)
 BUTTON_WIDTH_SMALL = int(Width * 0.625 // 3 / 2)
 BUTTON_HEIGHT = int(Height * 5 // 81)
@@ -35,8 +34,8 @@ button_layout_4 = [(button_x_start, Height * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGH
                        (button_x_start, Height * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                        (button_x_start, Height * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
 button_layout_main = [(button_x_start, Height * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
-                       (button_x_start, Height * 6 // 13, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT),
-                       (button_x_start+BUTTON_WIDTH_SMALL, Height * 6 // 13, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT),
+                       (button_x_start, Height * 6 // 13, BUTTON_WIDTH_SMALL-10, BUTTON_HEIGHT),
+                       (button_x_start+BUTTON_WIDTH_SMALL+10, Height * 6 // 13, BUTTON_WIDTH_SMALL-10, BUTTON_HEIGHT),
                        (button_x_start, Height * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                        (button_x_start, Height * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
 button_layout_levels = [(button_x_start-10, Height * 4 // 13, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT),
@@ -49,5 +48,10 @@ button_layout_levels = [(button_x_start-10, Height * 4 // 13, BUTTON_WIDTH_SMALL
                        (button_x_start+BUTTON_WIDTH_SMALL+10, Height * 7 // 13, BUTTON_WIDTH_SMALL, BUTTON_HEIGHT),
                        (button_x_start-10, Height * 8 // 13, LEVEL_QUIT_BUTTON, BUTTON_HEIGHT),
                        (button_x_start-10, Height * 9 // 13, LEVEL_QUIT_BUTTON, BUTTON_HEIGHT)]
+button_layout_5 = [(button_x_start, Height * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, Height * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, Height * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, Height * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, Height * 9 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
 PLAYER_ACC = 1
 PLAYER_FRICTION = -0.12

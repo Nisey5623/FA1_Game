@@ -19,10 +19,13 @@ class Game:
         #Variable stating that running is true for game loop below
         self.running = True
         self.shooting = True
+        self.enemy_shooting = True
         self.filename = 'times.txt'
         self.enemies = 0
         self.game_delay = True
-        
+        self.level = 0
+        self.coins = 0
+        self.latest_level = 0
         
 
     def new(self): #Start new game
@@ -38,17 +41,46 @@ class Game:
         pygame.mixer.music.load('Temple Run (iOS) Music- Running Music (128 kbps).mp3')
         #Places the player in the scentre of the screen and adds player to all_sprites group
         self.player = Mage(self,Width/2,Height/2)
-        enemy_number = random.randint(1,3)
-        wraith_number = random.randint(1,3)
-        caster_number = random.randint(0,2)
+        if self.level == 0:
+            enemy_number = 1
+            wraith_number = 1
+            caster_number = 1
+        if self.level == 1:
+            enemy_number = random.randint(1,2)
+            wraith_number = random.randint(1,2)
+            caster_number = 1
+        if self.level == 2:
+            enemy_number = random.randint(1,3)
+            wraith_number = random.randint(1,2)
+            caster_number = random.randint(1,2)
+        if self.level == 3:
+            enemy_number = random.randint(1,2)
+            wraith_number = random.randint(1,2)
+            caster_number = 1
+        if self.level == 4:
+            enemy_number = random.randint(1,3)
+            wraith_number = random.randint(1,2)
+            caster_number = random.randint(1,2)
+        if self.level == 5:
+            enemy_number = random.randint(2,3)
+            wraith_number = random.randint(1,3)
+            caster_number = random.randint(1,2)
+        if self.level == 6:
+            enemy_number = random.randint(2,3)
+            wraith_number = random.randint(2,3)
+            caster_number = random.randint(1,2)
+        if self.level == 7:
+            enemy_number = random.randint(3,4)
+            wraith_number = 3
+            caster_number = 3
         for i in range(0,enemy_number):
             self.orc_list.add(Orc(self,random.randint(100,1024),668))
             self.enemies += 1
         for i in range(0,wraith_number):
-            self.wraith_list.add(Wraith(self,random.randint(100,2000),random.randint(200,400)))
+            self.wraith_list.add(Wraith(self,random.randint(100,1800),random.randint(200,400)))
             self.enemies += 1
         for i in range(0,caster_number):
-            self.caster_list.add(Caster(self,random.randint(500,2000),random.randint(150,400)))
+            self.caster_list.add(Caster(self,random.randint(500,1800),random.randint(150,400)))
             self.enemies += 1
         for c in self.caster_list:
             self.platforms.add(platform(c.rect.x, c.rect.y+50,100,20,White))
@@ -59,7 +91,12 @@ class Game:
         self.all_sprites.add(self.player)
         self.wraithupdate = True
         self.hit = False
-        #Adds the platforms from the platform list to the location while adding them to the two sprite groups
+        platform_number = random.randint(6,12)
+        for i in range(0,platform_number):
+            p = (platform(random.randint(100,1800),random.randint(150,600),random.randint(60,180),20,Black))
+            self.all_sprites.add(p)
+            self.platforms.add(p)
+        Platform_list = [(0,Height - 40,2000,40,Black),(Width / 2-50,520,100,20,Black),(0,0,40,800,Black)]
         for plat in Platform_list:
             p = platform(*plat)
             self.all_sprites.add(p)
@@ -73,26 +110,27 @@ class Game:
 
     def run(self): #Game Loop
         #Sets the playing variable to while true game updates, checks events and draws while playing is true
-        pygame.mixer.music.play(loops=-1)
+        #pygame.mixer.music.play(loops=-1)
         self.playing = True
         while self.playing:
             self.Clock.tick(FPS)
             self.events()
             self.update()
             self.draw()
-        pygame.mixer.music.fadeout(1000)
+        #pygame.mixer.music.fadeout(1000)
         return
     
     def update(self): #Game Loop - Update
-        #self.game_timer = int(pygame.time.get_ticks()/1000)
         self.total_seconds = self.counts // FPS
         self.game_minutes = self.total_seconds // 60
         self.game_seconds = self.total_seconds % 60
         self.counts += 1
         if self.game_minutes > 5:
             self.player.kill()
-            self.enemy_list.kill()
+            self.enemy_list.empty()
             self.game_over_screen()
+        self.coins = str(self.coins)
+        self.label = self.myfont.render('Coins: ' + self.coins,True,Red)
         self.all_sprites.update()
         self.enemy_list.update()
         self.orc_list.update()
@@ -116,13 +154,15 @@ class Game:
             for w in self.wraith_list:
                 Wraithxdifference = self.player.rect.x - w.rect.x
                 Wraithydifference = self.player.rect.y - w.rect.y
-                if Wraithxdifference != 0 and Wraithydifference != 0:
+                if Wraithxdifference != 0:
                     self.wraithhspeed = (Wraithxdifference / Wraithxdifference * random.randint(2,4))
-                    self.wraithvspeed = (Wraithydifference / Wraithydifference * random.randint(2,4))
                     if Wraithxdifference > 700:
                         self.wraithhspeed = 0
                 else:
                     self.wraithhspeed = 0
+                if Wraithydifference != 0:
+                    self.wraithvspeed = (Wraithydifference / Wraithydifference * random.randint(2,4))
+                else:
                     self.wraithvspeed = 0
                 if self.player.rect.x < w.rect.x:
                     w.rect.x -= self.wraithhspeed
@@ -136,53 +176,16 @@ class Game:
                     w.rect.y += self.wraithvspeed 
             for c in self.caster_list:
                 if c.current_frame == 17:
-                    enemy_fire = Ability(c.rect.x,c.rect.y,self.player.rect.x,self.player.rect.y)
-                    self.enemy_fireballs.add(enemy_fire)
-                    self.enemy_list.add(self.enemy_fireballs)
+                    if self.enemy_shooting:
+                        enemy_fire = Ability(c.rect.x,c.rect.y,self.player.pos.x,self.player.pos.y,14)
+                        self.enemy_fireballs.add(enemy_fire)
+                        self.enemy_shooting = False
+                        pygame.time.set_timer(pygame.USEREVENT + 2, 1000)
                 if self.player.rect.x < c.rect.x:
                     c.animate_left()
                 if self.player.rect.x > c.rect.x:
-                    c.animate_right()        
-        mouse_x, mouse_y = pygame.mouse.get_pos()
-        if pygame.mouse.get_pressed() == (1,0,0):
-            if self.shooting:
-                self.fire = Ability(self.player.pos.x,self.player.pos.y-30, mouse_x, mouse_y)
-                self.fireballs.add(self.fire)
-                self.shooting = False
-                pygame.time.set_timer(pygame.USEREVENT + 1, 500)
-        if self.player.vel.y > 0:
-            hits = pygame.sprite.spritecollide(self.player, self.platforms, False)
-            if hits:
-                self.player.pos.y = hits[0].rect.top
-                self.player.vel.y = 0
-                self.player.jumping = False
-        if self.hit == False:
-            hit_list = pygame.sprite.spritecollide(self.player, self.enemy_list, False)
-            for enemy in hit_list:
-                if enemy.hit == False:
-                    self.player.health -= 1
-                    enemy.hit = False
-                    self.player.pos.x += 50
-                    self.hit = True
-                    if self.player.health == 0:
-                        self.player.kill()
-                        self.enemy_list.kill()
-                        self.game_over_screen()
-                    pygame.time.set_timer(pygame.USEREVENT + 3, 2000)
-                    timer = 2000 - int(pygame.time.get_ticks()/1000)
-                    timer = str(timer)
-                    self.hit_timer = self.myfont.render("Time: " + timer,True,(255,255,255))
-                    self.screen.blit(self.hit_timer,(self.player.pos.x,self.player.pos.y + 100))
-        fire_enemy_hit = pygame.sprite.groupcollide(self.enemy_list,self.fireballs, True, True)
-        for i in fire_enemy_hit:
-            self.enemies -= 1
-        fire_plat_hit = pygame.sprite.groupcollide(self.fireballs,self.platforms, True, False)
-        if self.enemies == 0:
-            self.times_add()
-            self.win_screen()
-            self.player.kill()
-            self.enemy_list.kill()
-        
+                    c.animate_right()
+        self.sprite_collisions()
         #Check for scrolling
         if self.player.rect.right >= (Width - (Width / 4)):
             self.player.pos.x -= max(abs(self.player.vel.x),2)
@@ -202,15 +205,62 @@ class Game:
                 e.rect.x += max(abs(self.player.vel.x),2)
         return
     
+    def sprite_collisions(self):
+        mouse_x, mouse_y = pygame.mouse.get_pos()
+        if pygame.mouse.get_pressed() == (1,0,0):
+            if self.shooting:
+                self.fire = Ability(self.player.pos.x,self.player.pos.y-30, mouse_x, mouse_y,7)
+                self.fireballs.add(self.fire)
+                self.shooting = False
+                pygame.time.set_timer(pygame.USEREVENT + 1, 500)
+        if self.player.vel.y > 0:
+            hits = pygame.sprite.spritecollide(self.player, self.platforms, False)
+            if hits:
+                self.player.pos.y = hits[0].rect.top
+                self.player.vel.y = 0
+                self.player.jumping = False
+        if self.hit == False:
+            hit_list = pygame.sprite.spritecollide(self.player, self.enemy_list, False)
+            for enemy in hit_list:
+                if enemy.hit == False:
+                    self.player.health -= 1
+                    enemy.hit = False
+                    self.player.pos.x += 50
+                    self.hit = True
+                    if self.player.health == 0:
+                        self.player.kill()
+                        self.enemy_list.empty()
+                        self.game_over_screen()
+                    pygame.time.set_timer(pygame.USEREVENT + 3, 2000)
+                    timer = 2000 - int(pygame.time.get_ticks()/1000)
+                    timer = str(timer)
+                    self.hit_timer = self.myfont.render("Time: " + timer,True,Red)
+                    self.screen.blit(self.hit_timer,(self.player.pos.x,self.player.pos.y + 100))
+                    
+        fire_enemy_hit = pygame.sprite.groupcollide(self.enemy_list,self.fireballs, True, True)
+        for i in fire_enemy_hit:
+            self.enemies -= 1
+        fire_plat_hit = pygame.sprite.groupcollide(self.fireballs,self.platforms, True, False)
+        if self.enemies == 0:
+            self.times_add()
+            self.win_screen()
+            self.player.kill()
+            self.enemy_list.empty()
+
     def events(self): #Game Loop - Events
         for event in pygame.event.get():
             #Checks if the window is closed to close the game window
             if event.type == pygame.QUIT:
                 self.playing = False
+                pygame.quit()
+                sys.exit()
             self.running = False
             if event.type == pygame.USEREVENT + 1:
                 self.shooting = True
                 pygame.time.set_timer(pygame.USEREVENT + 1,0)
+            elif event.type == pygame.USEREVENT + 2:
+                self.enemy_shooting = True
+                pygame.time.set_timer(pygame.USEREVENT + 2,0)
             elif event.type == pygame.USEREVENT + 3:
                 self.hit = False
                 pygame.time.set_timer(pygame.USEREVENT + 3, 0)
@@ -224,6 +274,8 @@ class Game:
     def draw(self): #Game zLoop - Draw  
         background = pygame.image.load("Temple Background.jpg") 
         self.screen.blit(background, (0,0))
+        self.screen.blit(self.label,(50,50))
+        
         self.enemy_list.draw(self.screen)
         self.orc_list.draw(self.screen)
         self.fireballs.draw(self.screen)
@@ -303,30 +355,46 @@ class Game:
                     pygame.quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
-            if self.button('T U T O R I A L', *button_layout_levels[0], click): 
-                self.new()
-                select = True
-            elif self.button('L E V E L  4', *button_layout_levels[1], click): 
-                self.new()
-                select = True
-            elif self.button('L E V E L  1', *button_layout_levels[2], click): 
-                self.new()
-                select = True
-            elif self.button('L E V E L  5', *button_layout_levels[3], click): 
-                self.new()
-                select = True
-            elif self.button('L E V E L  2', *button_layout_levels[4], click): 
-                self.new()
-                select = True
-            elif self.button('L E V E L  6', *button_layout_levels[5], click): 
-                self.new()
-                select = True
-            elif self.button('L E V E L  3', *button_layout_levels[6], click): 
-                self.new()
-                select = True
-            elif self.button('L E V E L  7', *button_layout_levels[7], click): 
-                self.new()
-                select = True
+            if self.latest_level >= 0:
+                if self.button('T U T O R I A L', *button_layout_levels[0], click):
+                    self.level = 0
+                    self.new()
+                    select = True
+            if self.latest_level >= 4:
+                if self.button('L E V E L  4', *button_layout_levels[1], click): 
+                    self.level = 4
+                    self.new()
+                    select = True
+            if self.latest_level >= 1:
+                if self.button('L E V E L  1', *button_layout_levels[2], click): 
+                    self.level = 1
+                    self.new()
+                    select = True
+            if self.latest_level >= 5:
+                if self.button('L E V E L  5', *button_layout_levels[3], click): 
+                    self.level = 5
+                    self.new()
+                    select = True
+            if self.latest_level >= 2:
+                if self.button('L E V E L  2', *button_layout_levels[4], click): 
+                    self.level = 2
+                    self.new()
+                    select = True
+            if self.latest_level >= 6:
+                if self.button('L E V E L  6', *button_layout_levels[5], click): 
+                    self.level = 6
+                    self.new()
+                    select = True
+            if self.latest_level >= 3:
+                if self.button('L E V E L  3', *button_layout_levels[6], click):
+                    self.level = 3
+                    self.new()
+                    select = True
+            if self.latest_level >= 7:
+                if self.button('L E V E L  7', *button_layout_levels[7], click): 
+                    self.level = 7
+                    self.new()
+                    select = True
             elif self.button('M A I N  M E N U', *button_layout_levels[8], click): 
                 self.show_start_screen()
             elif self.button('Q U I T  G A M E', *button_layout_levels[9], click): 
@@ -356,19 +424,22 @@ class Game:
                     pygame.quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
-            if self.button('T I M E S', *button_layout_4[0], click): 
+            if self.button('L E V E L S', *button_layout_5[0],click):
+                self.level_selector_screen()
+                won = False
+            elif self.button('T I M E S', *button_layout_5[1], click): 
                 self.times_read()
                 won = False
-            elif self.button('M A I N  M E N U', *button_layout_4[1], click): 
+            elif self.button('M A I N  M E N U', *button_layout_5[2], click): 
                 self.show_start_screen()
                 won = False
-            elif self.button('S E T T I N G S', *button_layout_4[2], click):
+            elif self.button('S E T T I N G S', *button_layout_5[3], click):
                 settings_menu()
                 self.win_screen_setup()
-            elif self.button('Q U I T  G A M E', *button_layout_4[3], click): 
+            elif self.button('Q U I T  G A M E', *button_layout_5[4], click): 
                 sys.exit()
                 pygame.quit()
-            pygame.display.update(button_layout_4)
+            pygame.display.update(button_layout_5)
             self.Clock.tick(60)
         return
 
@@ -498,12 +569,13 @@ class Game:
                     click = True
             if self.button('R E S U M E', *button_layout_4[0], click): 
                 return
-            if self.button('M A I N  M E N U', *button_layout_4[1], click): 
+            elif self.button('M A I N  M E N U', *button_layout_4[1], click): 
                 self.show_start_screen()
-            if self.button('S E T T I N G S', *button_layout_4[2], click):
+            elif self.button('S E T T I N G S', *button_layout_4[2], click):
                 settings_menu()
                 self.pause_menu_setup(background)
-            elif self.button('Q U I T  G A M E', *button_layout_4[3], click): sys.exit()
+            elif self.button('Q U I T  G A M E', *button_layout_4[3], click): 
+                sys.exit()
             pygame.display.update(button_layout_4)
             self.Clock.tick(60)
         return
