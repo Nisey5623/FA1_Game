@@ -13,6 +13,7 @@ class Mage(pygame.sprite.Sprite):
         self.game = game
         self.walking = False
         self.jumping = True
+        self.active_shield = False
         self.last_update = 0
         self.current_frame = 0
         self.load_images()
@@ -254,9 +255,29 @@ class Wraith(pygame.sprite.Sprite):
 class Shield(pygame.sprite.Sprite):
     def __init__(self,game,x,y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.image.load('power_up_shield.png')
+        self.image = pygame.transform.rotozoom(pygame.image.load('power_up_shield.png'),0,0.35)
         self.rect = self.image.get_rect()
-        self.applied = False
+        self.rect.x = x
+        self.rect.y = y
+        self.collect = True
+
+class Coin(pygame.sprite.Sprite):
+    def __init__(self,game,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.transform.rotozoom(pygame.image.load('Coin.png'),0,0.04)
+        self.rect = self.image.get_rect()
+        self.image.set_colorkey(White)
+        self.rect.x = x
+        self.rect.y = y
+
+class Heart(pygame.sprite.Sprite):
+    def __init__(self,game,x,y):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.transform.rotozoom(pygame.image.load('Heart.png'),0,0.04)
+        self.rect = self.image.get_rect()
+        self.image.set_colorkey(White)
+        self.rect.x = x
+        self.rect.y = y
 
 class Idle_Menu(pygame.sprite.Sprite):
     def __init__(self,x,y):
