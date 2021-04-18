@@ -21,9 +21,10 @@ class Mage(pygame.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
-        self.pos = vec(Width / 2, Height / 2)
+        self.pos = vec(x, y)
         self.vel = vec(0,0)
-        self.acc = vec(0,0)    
+        self.acc = vec(0,0)
+        self.fire_sound = pygame.mixer.Sound('Fireball_Sound.mp3')
 
     def load_images(self):
         self.standing_frames = [pygame.image.load("Mage/Idle_Edit/idle2.png"), pygame.image.load("Mage/Idle_Edit/idle3.png"), pygame.image.load("Mage/Idle_Edit/idle4.png"), pygame.image.load("Mage/Idle_Edit/idle5.png"), pygame.image.load("Mage/Idle_Edit/idle6.png"), pygame.image.load("Mage/Idle_Edit/idle7.png"), pygame.image.load("Mage/Idle_Edit/idle8.png"), pygame.image.load("Mage/Idle_Edit/idle9.png"), pygame.image.load("Mage/Idle_Edit/idle10.png"), pygame.image.load("Mage/Idle_Edit/idle11.png"), pygame.image.load("Mage/Idle_Edit/idle12.png"), pygame.image.load("Mage/Idle_Edit/idle13.png"), pygame.image.load("Mage/Idle_Edit/idle14.png")]
@@ -273,11 +274,16 @@ class Coin(pygame.sprite.Sprite):
 class Heart(pygame.sprite.Sprite):
     def __init__(self,game,x,y):
         pygame.sprite.Sprite.__init__(self)
-        self.image = pygame.transform.rotozoom(pygame.image.load('Heart.png'),0,0.04)
+        self.image = pygame.transform.rotozoom(pygame.image.load('Heart.png'),0,0.03)
         self.rect = self.image.get_rect()
         self.image.set_colorkey(White)
         self.rect.x = x
         self.rect.y = y
+        self.hit = False
+    
+    def update(self):
+        if self.hit == True:
+            self.kill()
 
 class Idle_Menu(pygame.sprite.Sprite):
     def __init__(self,x,y):
