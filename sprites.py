@@ -49,9 +49,9 @@ class Mage(pygame.sprite.Sprite):
         self.animate()
         self.acc = vec(0,0.7)
         keys = pygame.key.get_pressed()
-        if keys[pygame.K_a]:
+        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
             self.acc.x = -PLAYER_ACC
-        if keys[pygame.K_d]:
+        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
             self.acc.x = PLAYER_ACC
         
         self.acc.x += self.vel.x * PLAYER_FRICTION
@@ -182,8 +182,8 @@ class Caster(pygame.sprite.Sprite):
         self.image.convert_alpha()
         self.image.set_colorkey(ALPHA)
         self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
+        self.rect.centerx = x
+        self.rect.centery = y
         self.hit = False
 
     

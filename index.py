@@ -24,8 +24,10 @@ class Game:
         self.enemies = 0
         self.game_delay = True
         self.level = 0
+        self.played_level = 0
         self.coins = 0
         self.latest_level = 0
+        self.highest_level = 0
         self.mode = 'Easy Mode'
         self.multiplier = 1
         self.background = pygame.image.load("sized_background.jpg")
@@ -50,8 +52,8 @@ class Game:
 
     def new(self): #Start new game
         #Creates a sprite group for all sprites and all platforms
-        
         #Places the player in the scentre of the screen and adds player to all_sprites group
+        #self.extra_health = self.health - 3
         self.player = Mage(self,Width/2,668)
         self.health = 3 + self.extra_health
         self.players.add(self.player)
@@ -59,6 +61,15 @@ class Game:
         self.coin = Coin(self,50,25)
         self.all_sprites.add(self.coin)
         self.power_ups.add(self.shield)
+        if self.mode == 'Easy Mode':
+            self.active_color = Menu_Red
+            self.inactive_color = Inactive_Menu_Red
+            self.multiplier = 1
+        if self.mode == 'Master Mode':
+            self.latest_level = 0
+            self.active_color = Menu_Blue
+            self.inactive_color = Inactive_Menu_Blue
+            self.multiplier = 2
         add = 0
         for i in range(self.health):
             self.hearts.add(Heart(self,50+add,90))
@@ -68,49 +79,59 @@ class Game:
             enemy_number = 1 * self.multiplier
             wraith_number = 1 * self.multiplier
             caster_number = 1 * self.multiplier
+            self.played_level = 0
         if self.level == 1:
             enemy_number = random.randint(1,2) * self.multiplier
             wraith_number = random.randint(1,2) * self.multiplier
             caster_number = 1 * self.multiplier
             self.tutorial_mode_1 = False
+            self.played_level = 1
         if self.level == 2:
             enemy_number = random.randint(1,3) * self.multiplier
             wraith_number = random.randint(1,2) * self.multiplier
             caster_number = random.randint(1,2) * self.multiplier
             self.tutorial_mode_1 = False
+            self.played_level = 2
         if self.level == 3:
             enemy_number = random.randint(1,2) * self.multiplier
             wraith_number = random.randint(1,2) * self.multiplier
             caster_number = 1 * self.multiplier
             self.tutorial_mode_1 = False
+            self.played_level = 3
         if self.level == 4:
             enemy_number = random.randint(1,3) * self.multiplier
             wraith_number = random.randint(1,2) * self.multiplier
             caster_number = random.randint(1,2) * self.multiplier
             self.tutorial_mode_1 = False
+            self.played_level = 4
         if self.level == 5:
             enemy_number = random.randint(2,3) * self.multiplier
             wraith_number = random.randint(1,3) * self.multiplier
             caster_number = random.randint(1,2) * self.multiplier
             self.tutorial_mode_1 = False
+            self.played_level = 5
         if self.level == 6:
             enemy_number = random.randint(2,3) * self.multiplier
             wraith_number = random.randint(2,3) * self.multiplier
             caster_number = random.randint(1,2) * self.multiplier
             self.tutorial_mode_1 = False
+            self.played_level = 6
         if self.level == 7:
             enemy_number = random.randint(3,4) * self.multiplier
             wraith_number = 3 * self.multiplier
             caster_number = 3 * self.multiplier
             self.tutorial_mode_1 = False
+            self.played_level = 7
         for i in range(0,enemy_number):
-            self.orc_list.add(Orc(self,random.randint(100,1000),668))
+            self.orc_list.add(Orc(self,random.randint(100,1000),608))
             self.enemies += 1
         for i in range(0,wraith_number):
             self.wraith_list.add(Wraith(self,random.randint(100,1000),random.randint(200,400)))
             self.enemies += 1
+        position = [(169,341),(160,479),(374,443),(376,261),(815,305),(810,475)]
         for i in range(0,caster_number):
-            self.caster_list.add(Caster(self,random.randint(500,1000),random.randint(200,350)))
+            the_position = random.randint(0,5)
+            self.caster_list.add(Caster(self,*position[the_position]))
             self.enemies += 1
         '''for c in self.caster_list:
             self.platforms.add(platform(c.rect.x, c.rect.y+50,100,20,White))
@@ -121,27 +142,24 @@ class Game:
         self.all_sprites.add(self.player)
         self.wraithupdate = True
         self.hit = False
-        platform_number = random.randint(4,7)
+        #platform_number = random.randint(4,7)
         '''for i in range(0,platform_number):
             p = (platform(random.randint(100,900),random.randint(150,600),random.randint(60,180),20,Black))
             self.all_sprites.add(p)
             self.platforms.add(p)'''
-        Platform_list = [(0,Height - 40,2000,40,Black)]
-        for plat in Platform_list:
+        Platform_non_list = [(0,667,1100,40,Black)]
+        for plat in Platform_non_list:
+            p = platform(*plat)
+            #self.all_sprites.add(p)
+            self.platforms.add(p)
+        Platform_see_list = [(452,400,100,20,Black)]
+        for plat in Platform_see_list:
             p = platform(*plat)
             self.all_sprites.add(p)
             self.platforms.add(p)
         self.game_seconds = 0
         self.game_minutes = 0 
         self.counts = 0
-        if self.mode == 'Easy Mode':
-            self.active_color = Menu_Red
-            self.inactive_color = Inactive_Menu_Red
-            self.multiplier = 1
-        if self.mode == 'Master Mode':
-            self.active_color = Menu_Blue
-            self.inactive_color = Inactive_Menu_Blue
-            self.multiplier = 2
         #Runs the game loop from below
         self.run()    
         return
@@ -178,9 +196,10 @@ class Game:
         self.label = self.myfont.render(self.coins,True,White)
         self.all_sprites.update()
         self.enemy_list.update()
+        self.enemy_fireballs.update()
         self.fireballs.update()
         self.power_ups.update()
-        if self.game_seconds > 1:
+        if self.game_seconds > 0.5:
             for i in self.orc_list:
                 self.Orcxdifference = self.player.rect.x - i.rect.x
                 if self.Orcxdifference != 0:
@@ -223,13 +242,27 @@ class Game:
                     if self.enemy_shooting:
                         enemy_fire = Ability(c.rect.x,c.rect.y,self.player.pos.x,self.player.pos.y,14)
                         self.enemy_fireballs.add(enemy_fire)
-                        self.enemy_list.add(self.enemy_fireballs)
+                        #self.enemy_list.add(self.enemy_fireballs)
                         self.enemy_shooting = False
                         pygame.time.set_timer(pygame.USEREVENT + 2, 1000)
                 if self.player.rect.x < c.rect.x:
                     c.animate_left()
                 if self.player.rect.x > c.rect.x:
                     c.animate_right()
+        if self.health <= 0:
+            self.enemy_list.empty()
+            self.players.empty()
+            self.orc_list.empty()
+            self.wraith_list.empty()
+            self.caster_list.empty()
+            self.all_sprites.empty()
+            self.fireballs.empty()
+            self.enemy_fireballs.empty()
+            self.power_ups.empty()
+            self.platforms.empty()
+            self.hearts.empty()
+            self.player.kill()
+            self.game_over_screen()
         self.sprite_collisions()
         #Check for scrolling
         '''if self.player.rect.right >= (Width - (Width / 4)):
@@ -261,6 +294,7 @@ class Game:
     def sprite_collisions(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
         if pygame.mouse.get_pressed() == (1,0,0):
+            #print(mouse_x,mouse_y)
             if self.shooting:
                 self.fire = Ability(self.player.pos.x,self.player.pos.y-30, mouse_x, mouse_y,10)
                 self.fireballs.add(self.fire)
@@ -293,12 +327,8 @@ class Game:
                         self.player.pos.y = Height / 2
                         self.hit = True
                         self.timer = pygame.time.set_timer(pygame.USEREVENT + 3, 2000)
-                        if self.health == 0:
-                            self.player.kill()
-                            self.enemy_list.empty()
-                            self.game_over_screen()
 
-                    
+        enemyfire_hit = pygame.sprite.spritecollide(self.player,self.enemy_fireballs,False)
         fire_enemy_hit = pygame.sprite.groupcollide(self.enemy_list,self.fireballs, True, True)
         for i in fire_enemy_hit:
             self.enemies -= 1
@@ -315,12 +345,23 @@ class Game:
             pygame.time.set_timer(pygame.USEREVENT + 4, 5000)
         if self.enemies == 0:
             self.times_add()
-            self.player.kill()
             self.enemy_list.empty()
+            self.players.empty()
+            self.orc_list.empty()
+            self.wraith_list.empty()
+            self.caster_list.empty()
+            self.all_sprites.empty()
+            self.fireballs.empty()
+            self.enemy_fireballs.empty()
+            self.power_ups.empty()
+            self.platforms.empty()
+            self.hearts.empty()
+            self.player.kill()
             self.latest_level += 1
             self.coins += 50
             if self.latest_level > 7:
                 self.mode = 'Master Mode'
+                #self.latest_level = 0
             self.win_screen()
 
     def events(self): #Game Loop - Events
@@ -363,12 +404,13 @@ class Game:
         return
 
     def draw(self): #Game Loop - Draw  
+        self.platforms.draw(self.screen)
         self.screen.fill(White)
         self.screen.blit(self.background, (0,0))
         self.screen.blit(self.label,(70,22))
         self.power_ups.draw(self.screen)
         self.enemy_list.draw(self.screen)
-        self.orc_list.draw(self.screen)
+        #self.orc_list.draw(self.screen)
         self.fireballs.draw(self.screen)
         self.enemy_fireballs.draw(self.screen)
         self.hearts.draw(self.screen)
@@ -392,6 +434,8 @@ class Game:
 
     def times_read(self):
         reading = True
+        red_button_background = pygame.transform.rotozoom(pygame.image.load("Red Button Background.jpg"),0,0.8)
+        blue_button_background = pygame.transform.rotozoom(pygame.image.load("Blue_Button_Background.jpg"),0,0.805)
         with open(self.filename) as r:
             filecontents = r.read()
         str(filecontents)
@@ -399,10 +443,15 @@ class Game:
         text_surf = SMALL_TEXT.render("Press Esc to return to main menu.",True,Black)
         text_rect = text_surf.get_rect()
         text_rect.center = (Width/5, 220)
-        self.screen.blit(text_surf, text_rect)
         ptext.draw(filecontents, (Width/5-117,310), color=Blue)
         while reading:
             click = False
+            self.screen.fill(White)
+            if self.mode == 'Easy Mode':
+                self.screen.blit(red_button_background, (3,0))
+            if self.mode == 'Master Mode':
+                self.screen.blit(blue_button_background, (3,0))
+            self.screen.blit(text_surf, text_rect)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     sys.exit()
@@ -438,10 +487,11 @@ class Game:
 
     def lives_read(self):
         reading = True
+        red_button_background = pygame.transform.rotozoom(pygame.image.load("Red Button Background.jpg"),0,0.8)
+        blue_button_background = pygame.transform.rotozoom(pygame.image.load("Blue_Button_Background.jpg"),0,0.803)
         text_surf = SMALL_TEXT.render("Press Esc to return to main menu.",True,Black)
         text_rect = text_surf.get_rect()
         text_rect.center = (Width-(Width/5), 220)
-        self.screen.blit(text_surf, text_rect)
         sprites = pygame.sprite.Group()
         hearts = pygame.sprite.Group()
         coin = Coin(self,Width-(Width/5)-35,250)
@@ -449,12 +499,20 @@ class Game:
         addx = 0
         addy = 0
         for i in range(self.health):
-            hearts.add(Heart(self,Width-(Width/5)+12-addx,350))
+            hearts.add(Heart(self,Width-(Width/5)+12-addx,380+addy))
             addx += 35
             if addx > 70:
+                addy += 30
                 addx = 0
+            sprites.add(hearts)
         sprites.add(hearts)
         while reading:
+            self.screen.fill(White)
+            if self.mode == 'Easy Mode':
+                self.screen.blit(red_button_background, (0,0))
+            if self.mode == 'Master Mode':
+                self.screen.blit(blue_button_background, (0,0))
+            self.screen.blit(text_surf, text_rect)
             label = self.myfont.render(str(self.coins),True,Black)
             click = False
             for event in pygame.event.get():
@@ -479,7 +537,7 @@ class Game:
             sprites.draw(self.screen)
             self.screen.blit(label,(Width-(Width/5)-15,248))
             pygame.display.update()
-            #pygame.display.flip()
+            pygame.display.flip()
             self.Clock.tick(FPS)
         return
 
@@ -529,7 +587,7 @@ class Game:
                     waiting = False
 
     def tutorial_1(self):
-        text_surf = HUD_TEXT.render('Welcome to Marlin the Mage! To begin press the A or D key.',True,White)
+        text_surf = HUD_TEXT.render('Welcome to Marlin the Mage! To begin moving the main character use the A or Left key to move left or the D or Right key to move right.',True,White)
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 3))
         self.screen.blit(text_surf, text_rect)
@@ -553,7 +611,7 @@ class Game:
         pygame.time.set_timer(pygame.USEREVENT + 7, 1000)
     
     def tutorial_3(self):
-        text_surf = HUD_TEXT.render('Now you know how to kill the enemies, you must become more aware as to how many lives you have..',True,White)
+        text_surf = HUD_TEXT.render('Now you know how to kill the enemies, you must become more aware as to how many lives you have.',True,White)
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 3))
         self.screen.blit(text_surf, text_rect)
@@ -578,12 +636,12 @@ class Game:
         self.tutorial_mode_3 = False
 
     def level_selector_screen_setup(self):
-        self.screen.fill(White)
-        text_surf = MENU_TEXT.render('Levels',True,Black)
+        #self.screen.fill(White)
+        text_surf = MENU_TEXT.render('Levels',True,White)
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 4))
         self.screen.blit(text_surf, text_rect)
-        text_surf = HUD_TEXT.render(self.mode,True,Black)
+        text_surf = HUD_TEXT.render(self.mode,True,White)
         text_rect = text_surf.get_rect()
         text_rect = (int(Width * 0.01), int(Height * 0.98))
         self.screen.blit(text_surf,text_rect)
@@ -591,8 +649,16 @@ class Game:
         return
 
     def level_selector_screen(self):
+        background = pygame.transform.rotozoom(pygame.image.load("wood_background.png"),0,4.3)
+        self.screen.blit(background,(0,0))
         self.level_selector_screen_setup()
         select = False
+        if self.latest_level > 7:
+            if self.mode == 'Master Mode':
+                self.latest_level = 0
+                self.active_color = Menu_Blue
+                self.inactive_color = Inactive_Menu_Blue
+                self.multiplier = 2
         while select == False:
             click = False
             for event in pygame.event.get():
@@ -652,7 +718,7 @@ class Game:
 
     def win_screen_setup(self):
         self.screen.fill(White)
-        text_surf = MENU_TEXT.render('Level Complete',True,Gold)
+        text_surf = MENU_TEXT.render('Level ' + str(self.level) + ' Complete',True,Gold)
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 4))
         self.screen.blit(text_surf, text_rect)
@@ -670,11 +736,12 @@ class Game:
                     pygame.quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
-            if self.button('N E X T  L E V E L', *button_layout_5[0],click, self.inactive_color, self.active_color):
-                self.level += 1
-                self.new()
-                won = False
-            elif self.button('M A I N  M E N U', *button_layout_5[1], click, self.inactive_color, self.active_color): 
+            if self.latest_level <= 7:
+                if self.button('N E X T  L E V E L', *button_layout_5[0],click, self.inactive_color, self.active_color):
+                    self.level += 1
+                    self.new()
+                    won = False
+            if self.button('M A I N  M E N U', *button_layout_5[1], click, self.inactive_color, self.active_color): 
                 self.show_start_screen()
                 won = False
             elif self.button('T I M E S', *button_layout_5[2], click, self.inactive_color, self.active_color): 
@@ -704,6 +771,10 @@ class Game:
                 tute = 'O N'
             else:
                 tute = 'O F F'
+            if self.mode == 'Easy Mode':
+                mode = 'E A S Y'
+            else:
+                mode = 'M A S T E R'
             click = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -711,14 +782,19 @@ class Game:
                     pygame.quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
-            if self.button('M A I N  M E N U', *button_layout_5[1], click, Menu_Settings, Inactive_Menu_Settings): 
-                self.show_start_screen()
-                won = False
-            elif self.button('T U T O R I A L  :  '+tute, *button_layout_5[2], click, Menu_Settings, Inactive_Menu_Settings):
+            if self.button('T U T O R I A L  :  '+tute, *button_layout_5[1], click, Menu_Settings, Inactive_Menu_Settings):
                 if self.tutorial_mode_1 == True:
                     self.tutorial_mode_1 = False
                 else:
                     self.tutorial_mode_1 = True
+            elif self.button('M O D E  :  ' + mode, *button_layout_5[2], click, Menu_Settings, Inactive_Menu_Settings):
+                if self.mode == 'Easy Mode':
+                    self.mode = 'Master Mode'
+                else:
+                    self.mode = 'Easy Mode'
+            elif self.button('M A I N  M E N U', *button_layout_5[3], click, Menu_Settings, Inactive_Menu_Settings): 
+                self.show_start_screen()
+                won = False
             pygame.display.update(button_layout_5)
             self.Clock.tick(FPS)
         return
@@ -735,6 +811,7 @@ class Game:
     def game_over_screen(self):
         self.game_over_screen_setup()
         over = True
+        self.enemy_list.empty()
         while over:
             click = False
             for event in pygame.event.get():
@@ -744,7 +821,7 @@ class Game:
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
             if self.button('R E S T A R T', *button_layout_4[0], click, self.inactive_color, self.active_color): 
-                self.level = self.latest_level
+                self.level = self.played_level
                 self.new()
             elif self.button('M A I N  M E N U', *button_layout_4[1], click, self.inactive_color, self.active_color): 
                 self.show_start_screen()
@@ -759,16 +836,16 @@ class Game:
         return
 
     def show_start_screen_setup(self): #Game Start Screen
-        self.screen.fill(White)
-        text_surf = MENU_TEXT.render('Marlin the Mage',True,Black)
+        #self.screen.fill(White)
+        text_surf = MENU_TEXT.render('Marlin the Mage',True,White)
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 4))
         self.screen.blit(text_surf, text_rect)
-        text_surf = HUD_TEXT.render('Created by Luke Nisbett',True,Black)
+        text_surf = HUD_TEXT.render('Created by Luke Nisbett',True,White)
         text_rect = text_surf.get_rect()
         text_rect = (int(Width * 0.83), int(Height * 0.98))
         self.screen.blit(text_surf, text_rect)
-        text_surf = HUD_TEXT.render(self.mode,True,Black)
+        text_surf = HUD_TEXT.render(self.mode,True,White)
         text_rect = text_surf.get_rect()
         text_rect = (int(Width * 0.01), int(Height * 0.98))
         self.screen.blit(text_surf,text_rect)
@@ -777,9 +854,11 @@ class Game:
 
     def show_start_screen(self):
         Idler = Idle_Menu(Width/2-25,Height-Height/4-40)
-        self.show_start_screen_setup()
+        background = pygame.transform.rotozoom(pygame.image.load("wood_background.png"),0,4.3)
         game_begin = False
+        self.screen.blit(background,(0,0))
         scores = False
+        self.show_start_screen_setup()
         while scores == False:
             sprite = pygame.sprite.Group()
             sprite.add(Idler)
@@ -861,6 +940,8 @@ class Game:
             if self.button('R E S U M E', *button_layout_4[0], click, self.inactive_color, self.active_color): 
                 return
             elif self.button('M A I N  M E N U', *button_layout_4[1], click, self.inactive_color, self.active_color): 
+                self.player.kill()
+                self.enemy_list.empty()
                 self.show_start_screen()
             elif self.button('S E T T I N G S', *button_layout_4[2], click, self.inactive_color, self.active_color):
                 self.settings_screen()
