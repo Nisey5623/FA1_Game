@@ -104,7 +104,7 @@ class Ability(pygame.sprite.Sprite):
         self.rect.centery = y
         self.x_wall = Width
         self.y_wall = Height
-        self.hit = False
+        #self.hit = False
         xdifference = tx - self.rect.centerx
         ydifference = ty - self.rect.centery
         hyp = math.hypot(xdifference,ydifference)

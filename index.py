@@ -1,4 +1,4 @@
-import pygame
+import pygame #Maybe add a instructions button to the main menu screen.
 import random
 import os,sys
 from Settings import *
@@ -54,10 +54,11 @@ class Game:
         #Creates a sprite group for all sprites and all platforms
         #Places the player in the scentre of the screen and adds player to all_sprites group
         #self.extra_health = self.health - 3
+        self.enemies = 0
         self.player = Mage(self,Width/2,668)
         self.health = 3 + self.extra_health
         self.players.add(self.player)
-        self.shield = Shield(self,random.randint(100,900),random.randint(100,700))
+        self.shield = Shield(self,random.randint(100,900),random.randint(100,640))
         self.coin = Coin(self,50,25)
         self.all_sprites.add(self.coin)
         self.power_ups.add(self.shield)
@@ -65,11 +66,22 @@ class Game:
             self.active_color = Menu_Red
             self.inactive_color = Inactive_Menu_Red
             self.multiplier = 1
+        if self.mode == 'Hard Mode':
+            self.tutorial_mode_1 = False
+            self.tutorial_mode_2 = False
+            self.tutorial_mode_3 = False
+            #self.latest_level = 0
+            self.active_color = Menu_Green
+            self.inactive_color = Inactive_Menu_Green
+            self.multiplier = 2
         if self.mode == 'Master Mode':
-            self.latest_level = 0
+            self.tutorial_mode_1 = False
+            self.tutorial_mode_2 = False
+            self.tutorial_mode_3 = False
+            #self.latest_level = 0
             self.active_color = Menu_Blue
             self.inactive_color = Inactive_Menu_Blue
-            self.multiplier = 2
+            self.multiplier = 3
         add = 0
         for i in range(self.health):
             self.hearts.add(Heart(self,50+add,90))
@@ -147,12 +159,12 @@ class Game:
             p = (platform(random.randint(100,900),random.randint(150,600),random.randint(60,180),20,Black))
             self.all_sprites.add(p)
             self.platforms.add(p)'''
-        Platform_non_list = [(0,667,1100,40,Black)]
+        Platform_non_list = [(0,667,1100,40,Black)] #(947,438),(772,391),(582,358),(274,424),(63,436)
         for plat in Platform_non_list:
             p = platform(*plat)
             #self.all_sprites.add(p)
             self.platforms.add(p)
-        Platform_see_list = [(452,400,100,20,Black)]
+        Platform_see_list = [(452,400,100,20,Black),(947,438,40,20,Black),(772,391,40,20,Black),(582,358,40,20,Black),(274,424,40,20,Black),(63,436,40,20,Black)]
         for plat in Platform_see_list:
             p = platform(*plat)
             self.all_sprites.add(p)
@@ -204,8 +216,8 @@ class Game:
                 self.Orcxdifference = self.player.rect.x - i.rect.x
                 if self.Orcxdifference != 0:
                     self.orchspeed = (self.Orcxdifference / self.Orcxdifference * random.randint(1,5))
-                    if self.Orcxdifference > 700:
-                        self.orchspeed = 0
+                    #if self.Orcxdifference > 700:
+                        #self.orchspeed = 0
                 else:
                     self.orchspeed = 0
                 if self.player.rect.x < i.rect.x:
@@ -219,8 +231,8 @@ class Game:
                 Wraithydifference = self.player.rect.y - w.rect.y
                 if Wraithxdifference != 0:
                     self.wraithhspeed = (Wraithxdifference / Wraithxdifference * random.randint(2,4))
-                    if Wraithxdifference > 700:
-                        self.wraithhspeed = 0
+                    #if Wraithxdifference > 700:
+                        #self.wraithhspeed = 0
                 else:
                     self.wraithhspeed = 0
                 if Wraithydifference != 0:
@@ -327,8 +339,10 @@ class Game:
                         self.player.pos.y = Height / 2
                         self.hit = True
                         self.timer = pygame.time.set_timer(pygame.USEREVENT + 3, 2000)
-
-        enemyfire_hit = pygame.sprite.spritecollide(self.player,self.enemy_fireballs,False)
+        if self.player.active_shield == False:
+            enemyfire_hit = pygame.sprite.spritecollide(self.player,self.enemy_fireballs,False)
+            if enemyfire_hit:
+                self.health -= 1
         fire_enemy_hit = pygame.sprite.groupcollide(self.enemy_list,self.fireballs, True, True)
         for i in fire_enemy_hit:
             self.enemies -= 1
@@ -342,8 +356,8 @@ class Game:
                 self.shield.rect.y = 52
                 self.player.active_shield = True
                 self.shield.collect = False
-            pygame.time.set_timer(pygame.USEREVENT + 4, 5000)
-        if self.enemies == 0:
+                pygame.time.set_timer(pygame.USEREVENT + 4, 5000)
+        if self.enemies <= 0:
             self.times_add()
             self.enemy_list.empty()
             self.players.empty()
@@ -360,7 +374,10 @@ class Game:
             self.latest_level += 1
             self.coins += 50
             if self.latest_level > 7:
-                self.mode = 'Master Mode'
+                if self.mode == 'Easy Mode':
+                    self.mode = 'Hard Mode'
+                else:   
+                    self.mode = 'Master Mode'
                 #self.latest_level = 0
             self.win_screen()
 
@@ -408,7 +425,7 @@ class Game:
         self.screen.fill(White)
         self.screen.blit(self.background, (0,0))
         self.screen.blit(self.label,(70,22))
-        self.power_ups.draw(self.screen)
+        
         self.enemy_list.draw(self.screen)
         #self.orc_list.draw(self.screen)
         self.fireballs.draw(self.screen)
@@ -417,6 +434,7 @@ class Game:
         #pygame.draw.rect(self.screen, Red, self.player.rect)
         #pygame.draw.rect(self.screen, Red, self.enemy.rect)
         self.all_sprites.draw(self.screen)
+        self.power_ups.draw(self.screen)
         #The display flip is always last in the game loop.
         pygame.display.flip()
         return
@@ -436,21 +454,23 @@ class Game:
         reading = True
         red_button_background = pygame.transform.rotozoom(pygame.image.load("Red Button Background.jpg"),0,0.8)
         blue_button_background = pygame.transform.rotozoom(pygame.image.load("Blue_Button_Background.jpg"),0,0.805)
-        with open(self.filename) as r:
-            filecontents = r.read()
-        str(filecontents)
         #self.times_table()        
-        text_surf = SMALL_TEXT.render("Press Esc to return to main menu.",True,Black)
+        text_surf = SMALL_TEXT.render("Press Esc to return to main menu.",True,White)
         text_rect = text_surf.get_rect()
         text_rect.center = (Width/5, 220)
-        ptext.draw(filecontents, (Width/5-117,310), color=Blue)
         while reading:
+            with open(self.filename) as r:
+                filecontents = r.read()
+            str(filecontents)
             click = False
             self.screen.fill(White)
             if self.mode == 'Easy Mode':
                 self.screen.blit(red_button_background, (3,0))
+            if self.mode == 'Hard Mode':
+                self.screen.blit(red_button_background, (3,0))
             if self.mode == 'Master Mode':
                 self.screen.blit(blue_button_background, (3,0))
+            ptext.draw(filecontents, (Width/5-117,310), color=White)
             self.screen.blit(text_surf, text_rect)
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -473,11 +493,11 @@ class Game:
         mouse = pygame.mouse.get_pos()
         return_value = False
         if x < mouse[0] < x + w and y < mouse[1] < y + h:
-            pygame.draw.rect(self.screen, active_colour, (x, y, w, h))
+            pygame.draw.rect(self.screen, active_colour, (x, y, w, h),border_radius=10)
             if click and pygame.time.get_ticks() > 100: 
                 return_value = True
         else:
-            pygame.draw.rect(self.screen, inactive_colour, (x, y, w, h))
+            pygame.draw.rect(self.screen, inactive_colour, (x, y, w, h),border_radius=10)
 
         text_surf = SMALL_TEXT.render(text,True,text_colour)
         text_rect = text_surf.get_rect()
@@ -489,7 +509,7 @@ class Game:
         reading = True
         red_button_background = pygame.transform.rotozoom(pygame.image.load("Red Button Background.jpg"),0,0.8)
         blue_button_background = pygame.transform.rotozoom(pygame.image.load("Blue_Button_Background.jpg"),0,0.803)
-        text_surf = SMALL_TEXT.render("Press Esc to return to main menu.",True,Black)
+        text_surf = SMALL_TEXT.render("Press Esc to return to main menu.",True,White)
         text_rect = text_surf.get_rect()
         text_rect.center = (Width-(Width/5), 220)
         sprites = pygame.sprite.Group()
@@ -498,14 +518,13 @@ class Game:
         sprites.add(coin)
         addx = 0
         addy = 0
-        for i in range(self.health):
+        for i in range(self.health+self.extra_health):
             hearts.add(Heart(self,Width-(Width/5)+12-addx,380+addy))
             addx += 35
             if addx > 70:
                 addy += 30
                 addx = 0
             sprites.add(hearts)
-        sprites.add(hearts)
         while reading:
             self.screen.fill(White)
             if self.mode == 'Easy Mode':
@@ -707,7 +726,7 @@ class Game:
                     self.level = 7
                     self.new()
                     select = True
-            if self.button('M A I N  M E N U', *button_layout_levels[8], click, self.inactive_color, self.active_color): 
+            if self.button('B A C K', *button_layout_levels[8], click, self.inactive_color, self.active_color): 
                 self.show_start_screen()
             if self.button('Q U I T  G A M E', *button_layout_levels[9], click, self.inactive_color, self.active_color): 
                 sys.exit()
@@ -742,6 +761,8 @@ class Game:
                     self.new()
                     won = False
             if self.button('M A I N  M E N U', *button_layout_5[1], click, self.inactive_color, self.active_color): 
+                if self.latest_level >= 7:
+                    self.latest_level = 0
                 self.show_start_screen()
                 won = False
             elif self.button('T I M E S', *button_layout_5[2], click, self.inactive_color, self.active_color): 
@@ -773,7 +794,9 @@ class Game:
                 tute = 'O F F'
             if self.mode == 'Easy Mode':
                 mode = 'E A S Y'
-            else:
+            elif self.mode == 'Hard Mode':
+                mode = 'H A R D'
+            elif self.mode == 'Master Mode':
                 mode = 'M A S T E R'
             click = False
             for event in pygame.event.get():
@@ -782,17 +805,19 @@ class Game:
                     pygame.quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
-            if self.button('T U T O R I A L  :  '+tute, *button_layout_5[1], click, Menu_Settings, Inactive_Menu_Settings):
+            if self.button('T U T O R I A L  :  '+tute, *button_layout_5[0], click, Menu_Settings, Inactive_Menu_Settings):
                 if self.tutorial_mode_1 == True:
                     self.tutorial_mode_1 = False
                 else:
                     self.tutorial_mode_1 = True
-            elif self.button('M O D E  :  ' + mode, *button_layout_5[2], click, Menu_Settings, Inactive_Menu_Settings):
+            elif self.button('M O D E  :  ' + mode, *button_layout_5[1], click, Menu_Settings, Inactive_Menu_Settings):
                 if self.mode == 'Easy Mode':
+                    self.mode = 'Hard Mode'
+                elif self.mode == 'Hard Mode':
                     self.mode = 'Master Mode'
-                else:
+                elif self.mode == 'Master Mode':
                     self.mode = 'Easy Mode'
-            elif self.button('M A I N  M E N U', *button_layout_5[3], click, Menu_Settings, Inactive_Menu_Settings): 
+            elif self.button('B A C K', *button_layout_5[2], click, Menu_Settings, Inactive_Menu_Settings): 
                 self.show_start_screen()
                 won = False
             pygame.display.update(button_layout_5)
@@ -877,6 +902,9 @@ class Game:
             if self.mode == 'Easy Mode':
                 self.active_color = Menu_Red
                 self.inactive_color = Inactive_Menu_Red
+            if self.mode == 'Hard Mode':
+                self.active_color = Menu_Green
+                self.inactive_color = Inactive_Menu_Green
             if self.mode == 'Master Mode':
                 self.active_color = Menu_Blue
                 self.inactive_color = Inactive_Menu_Blue
