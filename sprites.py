@@ -136,7 +136,7 @@ class platform(pygame.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
 class Orc(pygame.sprite.Sprite):
-    def __init__(self,game,x,y):
+    def __init__(self,game,x,y,):
         pygame.sprite.Sprite.__init__(self)
         self.walking = False
         self.current_frame = 0

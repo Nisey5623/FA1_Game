@@ -16,6 +16,7 @@ class Game:
         self.myfont = pygame.font.SysFont('Calibri', 30)
         pygame.display.set_caption("Marlin the Mage")
         self.Clock = pygame.time.Clock()
+        self.menu_music = True
         #Variable stating that running is true for game loop below
         self.running = True
         self.shooting = True
@@ -47,13 +48,14 @@ class Game:
         self.wraith_list = pygame.sprite.Group()
         self.caster_list = pygame.sprite.Group()
         self.power_ups = pygame.sprite.Group()
-        self.hearts = pygame.sprite.Group()
-        pygame.mixer.music.load('Temple Run (iOS) Music- Running Music (128 kbps).mp3')    
+        self.hearts = pygame.sprite.Group()   
 
     def new(self): #Start new game
         #Creates a sprite group for all sprites and all platforms
         #Places the player in the scentre of the screen and adds player to all_sprites group
         #self.extra_health = self.health - 3
+        pygame.mixer.music.load('Temple Run (iOS) Music- Running Music (128 kbps).mp3') 
+        self.menu_music = True
         self.enemies = 0
         self.player = Mage(self,Width/2,668)
         self.health = 3 + self.extra_health
@@ -546,6 +548,7 @@ class Game:
             if self.button('B U Y  1  L I F E', Width-(Width/5)-65,300,BUTTON_WIDTH_SMALL+15,BUTTON_HEIGHT, click, self.inactive_color, self.active_color):
                 if int(self.coins) >= 100:
                     self.extra_health += 1
+                    int(self.coins)
                     self.coins -= 100
                     hearts.add(Heart(self,Width-(Width/5)+12-addx,380+addy))
                     addx += 35
@@ -590,6 +593,10 @@ class Game:
                         waiting = False
                     if event.key == pygame.K_d:
                         waiting = False
+                    if event.key == pygame.K_LEFT:
+                        waiting = False
+                    if event.key == pygame.K_RIGHT:
+                        waiting = False
 
     def any_key_wait(self):
         waiting = True
@@ -603,6 +610,8 @@ class Game:
                     pygame.quit()
                     sys.exit()
                 if event.type == pygame.KEYUP:
+                    waiting = False
+                if pygame.mouse.get_pressed() == (1,0,0):
                     waiting = False
 
     def tutorial_1(self):
@@ -670,6 +679,13 @@ class Game:
     def level_selector_screen(self):
         background = pygame.transform.rotozoom(pygame.image.load("wood_background.png"),0,4.3)
         self.screen.blit(background,(0,0))
+        OrcS = Orc(self,Width-(Width/3),Height/3)
+        WraithS = Wraith(self,Width-(Width/3),Height-2*(Height/3))
+        CasterS = Caster(self,Width-(Width/3),Height-(Height/3))
+        sprite = pygame.sprite.Group()
+        sprite.add(OrcS)
+        sprite.add(WraithS)
+        sprite.add(CasterS)
         self.level_selector_screen_setup()
         select = False
         if self.latest_level > 7:
@@ -679,6 +695,7 @@ class Game:
                 self.inactive_color = Inactive_Menu_Blue
                 self.multiplier = 2
         while select == False:
+            sprite.draw(self.screen)
             click = False
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -696,36 +713,57 @@ class Game:
                     self.level = 4
                     self.new()
                     select = True
+            else:
+                if self.button('L E V E L  4', *button_layout_levels[1], click, Level_Non_Select, Level_Non_Select): 
+                    pass
             if self.latest_level >= 1:
                 if self.button('L E V E L  1', *button_layout_levels[2], click, self.inactive_color, self.active_color): 
                     self.level = 1
                     self.new()
                     select = True
+            else:
+                if self.button('L E V E L  1', *button_layout_levels[2], click, Level_Non_Select, Level_Non_Select): 
+                    pass
             if self.latest_level >= 5:
                 if self.button('L E V E L  5', *button_layout_levels[3], click, self.inactive_color, self.active_color): 
                     self.level = 5
                     self.new()
                     select = True
+            else:
+                if self.button('L E V E L  5', *button_layout_levels[3], click, Level_Non_Select, Level_Non_Select): 
+                    pass
             if self.latest_level >= 2:
                 if self.button('L E V E L  2', *button_layout_levels[4], click, self.inactive_color, self.active_color): 
                     self.level = 2
                     self.new()
                     select = True
+            else:
+                if self.button('L E V E L  2', *button_layout_levels[4], click, Level_Non_Select, Level_Non_Select): 
+                    pass
             if self.latest_level >= 6:
                 if self.button('L E V E L  6', *button_layout_levels[5], click, self.inactive_color, self.active_color): 
                     self.level = 6
                     self.new()
                     select = True
+            else:
+                if self.button('L E V E L  6', *button_layout_levels[5], click, Level_Non_Select, Level_Non_Select): 
+                    pass
             if self.latest_level >= 3:
                 if self.button('L E V E L  3', *button_layout_levels[6], click, self.inactive_color, self.active_color):
                     self.level = 3
                     self.new()
                     select = True
+            else:
+                if self.button('L E V E L  3', *button_layout_levels[6], click, Level_Non_Select, Level_Non_Select): 
+                    pass
             if self.latest_level >= 7:
                 if self.button('L E V E L  7', *button_layout_levels[7], click, self.inactive_color, self.active_color): 
                     self.level = 7
                     self.new()
                     select = True
+            else:
+                if self.button('L E V E L  7', *button_layout_levels[7], click, Level_Non_Select, Level_Non_Select): 
+                    pass
             if self.button('B A C K', *button_layout_levels[8], click, self.inactive_color, self.active_color): 
                 self.show_start_screen()
             if self.button('Q U I T  G A M E', *button_layout_levels[9], click, self.inactive_color, self.active_color): 
@@ -737,7 +775,11 @@ class Game:
 
     def win_screen_setup(self):
         self.screen.fill(White)
-        text_surf = MENU_TEXT.render('Level ' + str(self.level) + ' Complete',True,Gold)
+        if self.level == 0:
+            self.win_text = "Tutorial"
+            text_surf = MENU_TEXT.render(self.win_text + ' Complete',True,Gold)
+        else:
+            text_surf = MENU_TEXT.render("Level " + str(self.level) + ' Complete',True,Gold)
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 4))
         self.screen.blit(text_surf, text_rect)
@@ -878,20 +920,25 @@ class Game:
         return
 
     def show_start_screen(self):
-        Idler = Idle_Menu(Width/2-25,Height-Height/4-40)
+        Idler = Idle_Menu(Width/2-25,Height-Height/4-40)  
         background = pygame.transform.rotozoom(pygame.image.load("wood_background.png"),0,4.3)
         game_begin = False
         self.screen.blit(background,(0,0))
         scores = False
         self.show_start_screen_setup()
+        sprite = pygame.sprite.Group()
+        sprite.add(Idler)
+        if self.menu_music == True:
+            pygame.mixer.music.load('Main_Menu_Music.mp3')  
+            pygame.mixer.music.play(loops=-1)
+            self.menu_music = False
         while scores == False:
-            sprite = pygame.sprite.Group()
-            sprite.add(Idler)
             sprite.draw(self.screen)
             click = False
             pressed_keys = pygame.key.get_pressed()
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
+                    pygame.mixer.music.fadeout(500)
                     sys.exit()
                     pygame.quit()
                 elif event.type == pygame.KEYDOWN: 
