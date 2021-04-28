@@ -128,6 +128,14 @@ class Ability(pygame.sprite.Sprite):
         return rot_image, rot_rect
 
 class platform(pygame.sprite.Sprite):
+    def __init__(self, x, y, w, h):
+        pygame.sprite.Sprite.__init__(self)
+        self.image = pygame.transform.rotozoom(pygame.image.load("Leaves.png"),0,0.75)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+class nonplatform(pygame.sprite.Sprite):
     def __init__(self, x, y, w, h,color):
         pygame.sprite.Sprite.__init__(self)
         self.image = pygame.Surface((w,h))

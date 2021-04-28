@@ -33,6 +33,7 @@ SMALL_TEXT = pygame.font.Font(FONT_BOLD, int(45 / 1440 * Height))
 HUD_TEXT = pygame.font.Font(FONT_REG, int(40 / 1440 * Height))
 BUTTON_WIDTH = int(Width * 0.625 // 3)
 BUTTON_WIDTH_SMALL = int(Width * 0.625 // 3 / 2)
+BUTTON_WIDTH_VERY_SMALL = int(Width * 0.625 // 3 / 4)
 BUTTON_HEIGHT = int(Height * 5 // 81)
 button_x_start = (Width - BUTTON_WIDTH) // 2
 LEVEL_QUIT_BUTTON = int(Width * 0.625 // 3) +20
@@ -60,5 +61,11 @@ button_layout_5 = [(button_x_start, Height * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGH
                        (button_x_start, Height * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                        (button_x_start, Height * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
                        (button_x_start, Height * 9 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
+button_layout_settings = [(button_x_start, Height * 5 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, Height * 6 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start, Height * 7 // 13, BUTTON_WIDTH, BUTTON_HEIGHT),
+                       (button_x_start+BUTTON_WIDTH_VERY_SMALL-125, Height * 7 // 13, BUTTON_WIDTH_VERY_SMALL, BUTTON_HEIGHT),
+                       (button_x_start+BUTTON_WIDTH+19, Height * 7 // 13, BUTTON_WIDTH_VERY_SMALL, BUTTON_HEIGHT),
+                       (button_x_start, Height * 8 // 13, BUTTON_WIDTH, BUTTON_HEIGHT)]
 PLAYER_ACC = 1
 PLAYER_FRICTION = -0.12

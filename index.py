@@ -23,6 +23,8 @@ class Game:
         self.enemy_shooting = True
         self.filename = 'times.txt'
         self.enemies = 0
+        pygame.mixer.music.set_volume(1)
+        self.volume = pygame.mixer.music.get_volume()
         self.game_delay = True
         self.level = 0
         self.played_level = 0
@@ -60,7 +62,7 @@ class Game:
         self.player = Mage(self,Width/2,668)
         self.health = 3 + self.extra_health
         self.players.add(self.player)
-        self.shield = Shield(self,random.randint(100,900),random.randint(100,640))
+        self.shield = Shield(self,random.randint(100,900),random.randint(500,640))
         self.coin = Coin(self,50,25)
         self.all_sprites.add(self.coin)
         self.power_ups.add(self.shield)
@@ -147,30 +149,22 @@ class Game:
             the_position = random.randint(0,5)
             self.caster_list.add(Caster(self,*position[the_position]))
             self.enemies += 1
-        '''for c in self.caster_list:
-            self.platforms.add(platform(c.rect.x, c.rect.y+50,100,20,White))
-            self.all_sprites.add(self.platforms)'''
         self.enemy_list.add(self.orc_list)
         self.enemy_list.add(self.caster_list)
         self.enemy_list.add(self.wraith_list)
         self.all_sprites.add(self.player)
         self.wraithupdate = True
         self.hit = False
-        #platform_number = random.randint(4,7)
-        '''for i in range(0,platform_number):
-            p = (platform(random.randint(100,900),random.randint(150,600),random.randint(60,180),20,Black))
-            self.all_sprites.add(p)
-            self.platforms.add(p)'''
         Platform_non_list = [(0,667,1100,40,Black)] #(947,438),(772,391),(582,358),(274,424),(63,436)
         for plat in Platform_non_list:
-            p = platform(*plat)
+            p = nonplatform(*plat)
             #self.all_sprites.add(p)
             self.platforms.add(p)
-        Platform_see_list = [(452,400,100,20,Black),(947,438,40,20,Black),(772,391,40,20,Black),(582,358,40,20,Black),(274,424,40,20,Black),(63,436,40,20,Black)]
-        for plat in Platform_see_list:
-            p = platform(*plat)
-            self.all_sprites.add(p)
-            self.platforms.add(p)
+        Platform_see_list = [((Width/5)-30,501,100,20),((Width/5) + (Width/5)-30,501,40,20),((Width/5) + (Width/5) + (Width/5)-30,501,40,20),((Width/5) + (Width/5) + (Width/5) + (Width/5)-30,501,40,20)]
+        leaves = random.randint(0,3)
+        p = platform(*Platform_see_list[leaves])
+        self.all_sprites.add(p)
+        self.platforms.add(p)
         self.game_seconds = 0
         self.game_minutes = 0 
         self.counts = 0
@@ -252,7 +246,7 @@ class Game:
                 elif self.player.rect.y > w.rect.y:
                     w.rect.y += self.wraithvspeed 
             for c in self.caster_list:
-                if c.current_frame == 17:
+                if c.current_frame == 17 or c.current_frame == 9:
                     if self.enemy_shooting:
                         enemy_fire = Ability(c.rect.x,c.rect.y,self.player.pos.x,self.player.pos.y,14)
                         self.enemy_fireballs.add(enemy_fire)
@@ -279,31 +273,6 @@ class Game:
             self.game_over_screen()
         self.sprite_collisions()
         #Check for scrolling
-        '''if self.player.rect.right >= (Width - (Width / 4)):
-            self.player.pos.x -= max(abs(self.player.vel.x),2)
-            for plat in self.platforms:
-                plat.rect.x -= max(abs(self.player.vel.x),2)
-            for e in self.enemy_list:
-                e.rect.x -= max(abs(self.player.vel.x),2)
-            for e in self.enemy_fireballs:
-                e.rect.centerx -= max(abs(self.player.vel.x),2)
-            for s in self.power_ups:
-                s.rect.centerx -= max(abs(self.player.vel.x),2)
-            for f in self.fireballs:
-                f.rect.centerx -= max(abs(self.player.vel.x),2)
-        if self.player.rect.left <= Width / 4:
-            self.player.pos.x += max(abs(self.player.vel.x),2)
-            for plat in self.platforms:
-                plat.rect.x += max(abs(self.player.vel.x),2)
-            for e in self.enemy_fireballs:
-                e.rect.centerx += max(abs(self.player.vel.x),2)
-            for e in self.enemy_list:
-                e.rect.x += max(abs(self.player.vel.x),2)
-            for s in self.power_ups:
-                s.rect.x += max(abs(self.player.vel.x),2)
-            for f in self.fireballs:
-                f.rect.x += max(abs(self.player.vel.x),2)
-        return'''
     
     def sprite_collisions(self):
         mouse_x, mouse_y = pygame.mouse.get_pos()
@@ -312,6 +281,7 @@ class Game:
             if self.shooting:
                 self.fire = Ability(self.player.pos.x,self.player.pos.y-30, mouse_x, mouse_y,10)
                 self.fireballs.add(self.fire)
+                self.player.fire_sound.set_volume(self.volume)
                 self.player.fire_sound.play()
                 self.shooting = False
                 pygame.time.set_timer(pygame.USEREVENT + 1, 400)
@@ -350,7 +320,7 @@ class Game:
             self.enemies -= 1
             self.coins = int(self.coins)
             self.coins += 10
-        fire_plat_hit = pygame.sprite.groupcollide(self.fireballs,self.platforms, True, False)
+        fire_plat_hit = pygame.sprite.groupcollide(self.enemy_fireballs,self.platforms, True, False)
         if self.shield.collect == True:
             shield_activate = pygame.sprite.groupcollide(self.players,self.power_ups,False,False)
             if shield_activate:
@@ -445,18 +415,11 @@ class Game:
         with open(self.filename,'a') as times: 
             times.write("Your game time - " + str(self.game_minutes) + ":" + str(self.game_seconds) + "  Level - " + str(self.level) + '\n')
 
-    def times_table(self):
-        self.scores = pygame.draw.rect(self.screen,Black,((Width/2)-150,(Height - Height)-150,300,300),3)
-        self.game_timer = str(self.game_timer)
-        scores_surf = SMALL_TEXT.render(self.game_timer,True,Black)
-        scores_rect = scores_surf.get_rect()
-        scores_rect.center = (int(Width / 2), int(Height - Height))
-
     def times_read(self):
         reading = True
         red_button_background = pygame.transform.rotozoom(pygame.image.load("Red Button Background.jpg"),0,0.8)
+        green_button_background = pygame.transform.rotozoom(pygame.image.load("Green_Button_Background.jpg"),0,0.8)
         blue_button_background = pygame.transform.rotozoom(pygame.image.load("Blue_Button_Background.jpg"),0,0.805)
-        #self.times_table()        
         text_surf = SMALL_TEXT.render("Press Esc to return to main menu.",True,White)
         text_rect = text_surf.get_rect()
         text_rect.center = (Width/5, 220)
@@ -469,7 +432,7 @@ class Game:
             if self.mode == 'Easy Mode':
                 self.screen.blit(red_button_background, (3,0))
             if self.mode == 'Hard Mode':
-                self.screen.blit(red_button_background, (3,0))
+                self.screen.blit(green_button_background, (3,0))
             if self.mode == 'Master Mode':
                 self.screen.blit(blue_button_background, (3,0))
             ptext.draw(filecontents, (Width/5-117,310), color=White)
@@ -510,6 +473,7 @@ class Game:
     def lives_read(self):
         reading = True
         red_button_background = pygame.transform.rotozoom(pygame.image.load("Red Button Background.jpg"),0,0.8)
+        green_button_background = pygame.transform.rotozoom(pygame.image.load("Green_Button_Background.jpg"),0,0.8)
         blue_button_background = pygame.transform.rotozoom(pygame.image.load("Blue_Button_Background.jpg"),0,0.803)
         text_surf = SMALL_TEXT.render("Press Esc to return to main menu.",True,White)
         text_rect = text_surf.get_rect()
@@ -531,6 +495,8 @@ class Game:
             self.screen.fill(White)
             if self.mode == 'Easy Mode':
                 self.screen.blit(red_button_background, (0,0))
+            if self.mode == "Hard Mode":
+                self.screen.blit(green_button_background,(0,0))
             if self.mode == 'Master Mode':
                 self.screen.blit(blue_button_background, (0,0))
             self.screen.blit(text_surf, text_rect)
@@ -651,11 +617,15 @@ class Game:
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 3+60))
         self.screen.blit(text_surf, text_rect)
-        text_surf = HUD_TEXT.render('The coins can buy more lives from the main menu scree.',True,White)
+        text_surf = HUD_TEXT.render('The coins can buy more lives from the main menu screen.',True,White)
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 3+90))
         self.screen.blit(text_surf, text_rect)
         text_surf = HUD_TEXT.render('To continue playing press any key.',True,White)
+        text_rect = text_surf.get_rect()
+        text_rect.center = (int(Width / 2), int(Height / 3+150))
+        self.screen.blit(text_surf, text_rect)
+        text_surf = HUD_TEXT.render('Use the leaves blocks to hide from the enemy fireballs.',True,White)
         text_rect = text_surf.get_rect()
         text_rect.center = (int(Width / 2), int(Height / 3+120))
         self.screen.blit(text_surf, text_rect)
@@ -830,6 +800,7 @@ class Game:
         self.settings_screen_setup()
         won = True
         while won:
+            self.volume = pygame.mixer.music.get_volume()
             if self.tutorial_mode_1 == True:
                 tute = 'O N'
             else:
@@ -847,22 +818,36 @@ class Game:
                     pygame.quit()
                 elif event.type == pygame.MOUSEBUTTONDOWN: 
                     click = True
-            if self.button('T U T O R I A L  :  '+tute, *button_layout_5[0], click, Menu_Settings, Inactive_Menu_Settings):
+            if self.button('T U T O R I A L  :  '+tute, *button_layout_settings[0], click, Menu_Settings, Inactive_Menu_Settings):
                 if self.tutorial_mode_1 == True:
                     self.tutorial_mode_1 = False
                 else:
                     self.tutorial_mode_1 = True
-            elif self.button('M O D E  :  ' + mode, *button_layout_5[1], click, Menu_Settings, Inactive_Menu_Settings):
+            elif self.button('M O D E  :  ' + mode, *button_layout_settings[1], click, Menu_Settings, Inactive_Menu_Settings):
                 if self.mode == 'Easy Mode':
                     self.mode = 'Hard Mode'
                 elif self.mode == 'Hard Mode':
                     self.mode = 'Master Mode'
                 elif self.mode == 'Master Mode':
                     self.mode = 'Easy Mode'
-            elif self.button('B A C K', *button_layout_5[2], click, Menu_Settings, Inactive_Menu_Settings): 
+            elif self.button('V O L U M E  :  ' + str(self.volume), *button_layout_settings[2], click, Menu_Settings, Menu_Settings):
+                pass
+            elif self.button('-', *button_layout_settings[3], click, Menu_Settings, Inactive_Menu_Settings): 
+                if self.volume == 0:
+                    pass
+                else:
+                    self.volume -= 0.25
+                    pygame.mixer.music.set_volume(self.volume)
+            elif self.button('+', *button_layout_settings[4], click, Menu_Settings, Inactive_Menu_Settings): 
+                if self.volume == 1:
+                    pass
+                else:
+                    self.volume += 0.25
+                    pygame.mixer.music.set_volume(self.volume)
+            elif self.button('B A C K', *button_layout_settings[5], click, Menu_Settings, Inactive_Menu_Settings): 
                 self.show_start_screen()
                 won = False
-            pygame.display.update(button_layout_5)
+            pygame.display.update(button_layout_settings)
             self.Clock.tick(FPS)
         return
 
