@@ -59,12 +59,10 @@ class Mage(pygame.sprite.Sprite):
         if abs(self.vel.x) < 0.1:
             self.vel.x = 0
         self.pos += self.vel + 0.5 * self.acc
-        # wrap around the sides of the screen
         if self.pos.x > Width + self.rect.width / 2:
             self.pos.x = 0 - self.rect.width / 2
         if self.pos.x < 0 - self.rect.width / 2:
             self.pos.x = Width + self.rect.width / 2
-
         self.rect.midbottom = self.pos
 
     def animate(self):
