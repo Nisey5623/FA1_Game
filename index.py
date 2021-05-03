@@ -609,7 +609,7 @@ class Game:
 
             #Renders labels
             self.screen.blit(text_surf, text_rect)
-            label = self.myfont.render(str(self.coins),True,Black)
+            label = self.myfont.render(str(self.coins),True,White)
             click = False
 
             #Checks if game quit
